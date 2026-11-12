@@ -1,0 +1,15 @@
+import EquivalenceMain
+
+#check NineAxiomBZ.nine_axioms_imply_delta_zero_separation
+#check NineAxiomBZ.bounded_zermelo_implies_nine_axioms
+#check NineAxiomBZ.nine_axioms_imply_bounded_zermelo
+#check NineAxiomBZ.bounded_zermelo_iff_nine_axioms
+#check NineAxiomBZ.bounded_zermelo_iff_bzminus_plus_nine
+#check NineAxiomBZ.bounded_zermelo_iff_nine_with_extra
+
+#print axioms NineAxiomBZ.nine_axioms_imply_delta_zero_separation
+#print axioms NineAxiomBZ.bounded_zermelo_implies_nine_axioms
+#print axioms NineAxiomBZ.nine_axioms_imply_bounded_zermelo
+#print axioms NineAxiomBZ.bounded_zermelo_iff_nine_axioms
+#print axioms NineAxiomBZ.bounded_zermelo_iff_bzminus_plus_nine
+#print axioms NineAxiomBZ.bounded_zermelo_iff_nine_with_extra
