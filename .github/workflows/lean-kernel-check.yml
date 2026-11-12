@@ -1,1 +1,25 @@
+name: Lean kernel verification
 
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Build and audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Lean and build every project root
+        uses: leanprover/lean-action@v1
+        with:
+          build: true
+
+      - name: Print endpoint types and trusted axioms
+        run: lake env lean KernelAudit.lean
