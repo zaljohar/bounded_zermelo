@@ -1,4 +1,30 @@
-# Nine axioms ⇔ Bounded Zermelo (Lean 4, kernel verified)
+# Nine axioms ⇔ Bounded Zermelo without Foundation
+
+## Foundation-free endpoint
+
+`FoundationFreeEquivalenceCandidate.lean` now proves and kernel-checks:
+
+```lean
+theorem bounded_zermelo_iff_bzminus_plus_nine_no_foundation
+    (B : BackgroundNoFoundation V) :
+    BoundedZermeloCore B ↔
+      (BZMinusNoFoundation B ∧ Nonempty (NineAxioms B.mem))
+```
+
+Here `BackgroundNoFoundation V` supplies only Extensionality and Power Set.
+The forward theorem
+
+```lean
+bounded_separation_from_nine_no_foundation
+    (B : BackgroundNoFoundation V) (H : NineAxioms B.mem) :
+    BoundedSeparation B.mem
+```
+
+therefore derives every bounded-Separation instance without Foundation. The
+kernel audit reports only `[propext, Classical.choice, Quot.sound]`.
+
+The remainder of this README records the earlier Foundation-based endpoint,
+which remains available and kernel-checked.
 
 ## Exact endpoint
 
@@ -59,7 +85,7 @@ No field of `NineAxioms` is used as a premise in this reverse proof.
 
 ## Kernel-verification status
 
-Verified on 2026-11-12 with:
+Both endpoints were verified together on 2026-11-13 with:
 
 ```text
 Lean 4.20.0, commit 77cfc4d1a4f6, Release
@@ -67,9 +93,9 @@ Lake 5.0.0-77cfc4d
 Mathlib v4.20.0
 ```
 
-A clean `lake build` completed all 571 targets successfully. Running
-`lake env lean KernelAudit.lean` after that clean build showed that each of
-the six principal forward, reverse, and equivalence theorems depends only on:
+A complete `lake build` succeeded. Running `KernelAudit.lean` and
+`FoundationFreeKernelAudit.lean` showed that every audited forward, reverse,
+and equivalence theorem depends only on:
 
 ```text
 [propext, Classical.choice, Quot.sound]
@@ -86,6 +112,7 @@ object-theoretic Axiom of Choice for `B`.
 lake update
 lake build
 lake env lean KernelAudit.lean
+lake env lean FoundationFreeKernelAudit.lean
 ```
 
 For GitHub, the included `.github/workflows/lean-kernel-check.yml` performs
