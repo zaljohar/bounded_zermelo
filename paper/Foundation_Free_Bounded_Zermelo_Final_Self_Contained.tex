@@ -1,0 +1,648 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,amsmath,amssymb,amsthm,mathtools,microtype,enumitem,booktabs,array,hyperref}
+\usepackage[margin=1.12in,includeheadfoot]{geometry}
+\hypersetup{colorlinks=true,linkcolor=blue!55!black,urlcolor=blue!55!black,citecolor=blue!55!black,pdftitle={A Foundation-Free Finite Axiomatization of Bounded Zermelo Set Theory},pdfauthor={Zuhair A. Al-Johar}}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\pagestyle{fancy}\fancyhf{}\fancyhead[L]{\footnotesize Foundation-free bounded Zermelo}\fancyhead[R]{\footnotesize Z. A. Al-Johar}\fancyfoot[C]{\thepage}\renewcommand\headrulewidth{0.35pt}
+\numberwithin{equation}{section}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{definition}[theorem]{Definition}
+\newcommand{\up}[2]{\{#1,#2\}}
+\newcommand{\Up}[2]{\{\{#1,#2\}\}}
+\newcommand{\Comp}{\mathbin{\underline{\circ}}}
+\newcommand{\UnProd}{\mathbin{\ast}}
+\newcommand{\Int}{\mathsf{I}}
+\newcommand{\Mem}{\mathsf{M}}
+\newcommand{\SI}{\mathsf{S}}
+\newcommand{\Pow}{\mathcal P}
+\newcommand{\Dzero}{\Delta_0}
+\newcommand{\Tnine}{T_9}
+\newcommand{\Fr}{\mathrm{Fr}}
+\newcommand{\dom}{\mathrm{dom}}
+\newcommand{\ran}{\mathrm{ran}}
+\newcommand{\restr}{\upharpoonright}
+\title{\vspace{-2.3em}\textbf{A Foundation-Free Finite Axiomatization\\[3pt] of Bounded Zermelo Set Theory}}
+\author{Zuhair A. Al-Johar}
+\date{13 November 2026\\[2pt]\small Revised and expanded self-contained proof}
+\begin{document}
+\maketitle
+\begin{abstract}
+We prove that bounded Zermelo set theory without Foundation or Infinity is finitely axiomatizable by Extensionality, Power Set, and nine unrestricted existence principles, including unrestricted composition and two filters on unordered-pair relations.  With Pairing and Union retained as conventional axioms, the result takes a particularly short form: Extensionality, Power Set, Pairing, Union, and four additional principles suffice, namely relative difference, unordered relational composition, an unordered intersection filter, and an unordered membership filter.  The difficult implication constructs arbitrary parameterized bounded-Separation instances using finite-depth fresh markers and finite sets of tagged assignments.  Self-membership is handled directly, rather than excluded by Foundation.  We give the constructions and their correctness proofs in ordinary set-theoretic language, and explain the reverse implication.  No Foundation, Infinity, Replacement, or Choice axiom of the object theory is used.
+\end{abstract}
+\noindent\textbf{Keywords:} bounded separation; finite axiomatization; rudimentary set operations; unordered pairs; Foundation; Zermelo set theory; formal verification.\\
+\textbf{MSC 2020:} 03E30, 03E35, 03B35.
+
+\section{Statement of the result}
+Throughout we reason in classical first-order logic with equality and a binary relation symbol $\in$, under the standard convention that every first-order structure has a nonempty domain.  No assumption about the well-foundedness of this relation is implicit.  We write $x\subseteq y$ for $\forall z(z\in x\rightarrow z\in y)$.  Extensionality guarantees uniqueness whenever the members of a set are specified.  Terms for finite unions, intersections and other operations are used only after their existence has been proved.
+
+An \emph{unordered pair} is a set $p=\up ab$ with
+\[
+ z\in p\quad\longleftrightarrow\quad(z=a\lor z=b).
+\]
+The notation allows $a=b$, in which case $p=\{a\}$.  For sets $Q,R,X$ put
+\begin{align}
+Q\Comp R&=\bigl\{\up ac:\exists b\,\bigl(\up ab\in Q\ \wedge\ \up bc\in R\bigr)\bigr\},\label{eq:comp}\\
+\Int(X)&=\bigl\{p\in X:\exists a,b\,[p=\up ab\land a\cap b\ne\varnothing]\bigr\},\label{eq:int}\\
+\Mem(X)&=\bigl\{p\in X:\exists a,b\,[p=\up ab\land(a\in b\lor b\in a)]\bigr\}.\label{eq:mem}
+\end{align}
+These are \emph{specifications}, not comprehension terms whose existence is being taken for granted.  In each case the corresponding axiom asserts that the specified set exists, for all arguments.  Composition is of unordered-pair relations; in general it is not associative, and no arbitrary orientation is tacitly attached to its edges.
+
+Let $\Tnine$ consist of these nine existence principles:
+\begin{enumerate}[label=(\arabic*),leftmargin=2.3em,itemsep=2pt]
+\item existence of an empty set;
+\item existence of $\{a\}$ for every $a$;
+\item existence of $A\setminus B$ for all $A,B$;
+\item existence of $A\cap B$ for all $A,B$;
+\item existence of $\bigcup A$ for every $A$;
+\item existence of $Q\Comp R$ for all $Q,R$;
+\item existence of $\Int(X)$ for every $X$;
+\item existence of $\Mem(X)$ for every $X$;
+\item a common superset: for all $A,B$ some $C$ satisfies $A\subseteq C$ and $B\subseteq C$.
+\end{enumerate}
+Let $\mathrm{BZ}_0$ denote Extensionality, Empty Set, Pairing, Union, Power Set, and all instances of $\Dzero$-Separation.  Here the subscript indicates that \emph{Foundation and Infinity are not included}; neither is Replacement or Choice.  A $\Dzero$ formula may have any finite number of parameters and is built from equality and membership using Boolean connectives and quantifiers $\exists x\in y$ and $\forall x\in y$.  We make no stratification restriction.
+
+\begin{theorem}[Foundation-free finite axiomatization]\label{thm:main}
+Over Extensionality and Power Set, the following are equivalent:
+\begin{enumerate}[label=(\roman*),leftmargin=2.6em]
+\item Empty Set, Pairing, Union, and the full parameterized $\Dzero$-Separation schema;
+\item the nine existence principles $\Tnine$.
+\end{enumerate}
+Consequently $\mathrm{BZ}_0$ has an eight-axiom presentation consisting of Extensionality, Power Set, Pairing, Union, and the four existence axioms for $A\setminus B$, $Q\Comp R$, $\Int(X)$ and $\Mem(X)$.
+\end{theorem}
+
+\begin{proof}[Eight-axiom formulation]
+Assume the eight indicated axioms.  By nonemptiness of the first-order domain, choose an object $A$.  The empty set is $A\setminus A$; a singleton is $\up aa$; binary intersection is $A\setminus(A\setminus B)$; and a common superset of $A,B$ is $\bigcup\up AB$.  Thus all nine principles hold.  Conversely, from $\Tnine$ we obtain Pairing and binary union by Lemma~\ref{lem:pair}.  The two formulations are therefore interderivable.  The principal equivalence in Theorem~\ref{thm:main} is proved in Sections~\ref{sec:finite}--\ref{sec:converse}.
+\end{proof}
+
+The fact that Foundation is absent matters: a model may contain $a\in a$ or finite membership cycles.  Our construction never turns an atomic assertion $a\in a$ into a falsehood by convention.  It builds the corresponding bounded truth set explicitly.
+
+\section{Elementary derived operations}\label{sec:elementary}
+Set formation by a \emph{finite} externally given list is permitted below because it follows by repeated pairing and union; it does not require Replacement.
+
+\begin{lemma}[The unordered-pair endpoint lemma]\label{lem:endpoints}
+For any objects $a,b,c,d$, if the unordered pairs $\up ab$ and $\up cd$ exist, then
+\[
+\up ab=\up cd\quad\Longleftrightarrow\quad
+(a=c\land b=d)\ \lor\ (a=d\land b=c).
+\]
+In particular, a singleton $\{a\}$ equals a pair $\up bc$ exactly when $a=b=c$.
+\end{lemma}
+\begin{proof}
+The reverse implication follows immediately from the defining membership equivalences and Extensionality.  Conversely, suppose $\up ab=\up cd$.  Membership of $a$ in this set gives $a=c$ or $a=d$.  If $a=c$, membership of $d$ in $\up ab$ gives $d=a$ or $d=b$.  In the first case $c=d=a$, and membership of $b$ in $\up cd$ forces $b=a$; in the second, $d=b$.  Thus $a=c,b=d$.  The case $a=d$ is symmetric and gives $a=d,b=c$.  This argument permits $a=b$ and requires no Foundation.
+\end{proof}
+
+\begin{lemma}\label{lem:pair}
+$\Tnine$ gives unordered Pairing, binary union, and the finite set of values of any externally specified finite tuple.  It also gives a set $X\UnProd Y$ with
+\[
+X\UnProd Y=\{\up xy:x\in X,\ y\in Y\}.
+\]
+The last assertion requires Power Set in the derivation, but not Foundation.
+\end{lemma}
+\begin{proof}
+To obtain $\up ab$ from $\Tnine$, choose singletons $s_a=\{a\}$ and $s_b=\{b\}$ and a common superset $C\supseteq s_a\cup s_b$.  Then
+\[
+\up ab=C\setminus\bigl((C\setminus s_a)\setminus s_b\bigr).
+\]
+Binary union is $A\cup B=\bigcup\up AB$, and finite collection is by induction on the finite list.
+
+For the unordered product, first suppose $X\subseteq D$.  Consider
+\[
+F_D(X)=\Pow(X)\Comp\Pow(D).
+\]
+We claim that
+\begin{equation}\label{eq:fanD}
+F_D(X)=\{\up xd:x\in X,\ d\in D\}.
+\end{equation}
+If $\up{a}{b}\in\Pow(X)$ and $\up bc\in\Pow(D)$, the output is $\up ac$ with $a\in X,c\in D$.  Conversely, for $x\in X,d\in D$ the edges $\{x\}\in\Pow(X)$ and $\up xd\in\Pow(D)$, joined at $x$, witness $\up xd\in F_D(X)$.  Put $D=X\cup Y$.  We have
+\begin{equation}\label{eq:product}
+X\UnProd Y=F_D(X)\cap F_D(Y).
+\end{equation}
+The forward inclusion follows because $x\in X$ and $y\in Y$ also belong to $D$.  For the converse, let
+\[
+p=\up xd=\up ye,\qquad x\in X,\ y\in Y,\ d,e\in D=X\cup Y.
+\]
+By Lemma~\ref{lem:endpoints}, either $x=y$ and $d=e$, or $x=e$ and $d=y$.  In the latter case $p=\up xy$, as required.  In the former case $x=y\in X\cap Y$, so consider $d\in D$.  If $d\in Y$ then $p=\up xd$ with $x\in X,d\in Y$; if $d\in X$ then $p=\up dx$ with $d\in X,x\in Y$.  This covers the genuine-doubleton case as well as $d=x$ (a singleton).  Hence $p\in X\UnProd Y$.  Extensionality proves both identities.
+\end{proof}
+
+We shall use typed edge relations repeatedly.  If $U,W$ are disjoint sets, a relation $R\subseteq U\times W$ is represented by the set
+\[
+[R]_{U,W}=\{\up uw:u\in U,\ w\in W,R(u,w)\}.
+\]
+The brackets are merely a specification, and existence is always separately established.  Since $U\cap W=\varnothing$, each edge has a unique orientation from $U$ to $W$.  A graph can be read in either direction without changing the edge set.
+
+\begin{lemma}[Typed joins and images]\label{lem:typed}
+Suppose $U,W,Z$ are pairwise disjoint and sets $[R]_{U,W}$ and $[S]_{W,Z}$ exist.  Then $[R\circ S]_{U,Z}$ exists, with
+\[
+(R\circ S)(u,z)\iff\exists w\in W\ (R(u,w)\land S(w,z)).
+\]
+If only $U\cap W=W\cap Z=\varnothing$ is known, the same conclusion holds by intersecting the unordered composition with $U\UnProd Z$.  Moreover, if $T\cap U=\varnothing$, $H\subseteq T$, and $[R]_{T,U}$ exists, then its restricted image exists and is
+\begin{equation}\label{eq:image}
+\operatorname{im}_{R}(H)=U\cap\bigcup\bigl([R]_{T,U}\cap(H\UnProd U)\bigr).
+\end{equation}
+\end{lemma}
+\begin{proof}
+Consider edges $\up uw\in[R]_{U,W}$ and $\up{w'}z\in[S]_{W,Z}$.  A common intermediate endpoint could be $u=w'$, $u=z$, $w=w'$, or $w=z$.  Disjointness of $U$ and $W$ rules out $u=w'$; disjointness of $U$ and $Z$ rules out $u=z$; and disjointness of $W$ and $Z$ rules out $w=z$.  Only $w=w'$ remains, producing the intended edge $\up uz$.  Conversely, an actual $R$-then-$S$ path is a witness to membership in the unordered composition.  When $U$ and $Z$ may overlap, the sole additional case is $u=z$, which produces an output whose two endpoints lie in $W$.  Because $W$ is disjoint from both $U$ and $Z$, such an output cannot belong to $U\UnProd Z$, so intersecting with that set removes it.  For the image assertion, the displayed expression is a set by Lemma~\ref{lem:pair}, intersection and union.  Its members in $U$ are precisely the $u$ for which a surviving unordered edge $\up tu$ has $t\in H$.  The alternative $u=t$ cannot arise because $T\cap U=\varnothing$.
+\end{proof}
+
+\section{The universal-set obstruction}\label{sec:universal}
+We do not obtain fresh markers by invoking Foundation.  Instead, we first prove internally that no set can be universal.  This is the first place where the two unordered filters play sharply different roles.
+
+\begin{lemma}[Externally infinite supply]\label{lem:infinite}
+Under Extensionality and the empty-set and singleton principles, the carrier has arbitrarily many distinct objects.  This does not assert the object-theoretic Infinity axiom.
+\end{lemma}
+\begin{proof}
+Start with $e_0=\varnothing$ and define the external sequence $e_{n+1}=\{e_n\}$.  If $e_i=e_j$ for $i<j$, cancellation of the singleton constructor, repeated $i$ times, gives $e_0=e_{j-i}$.  This is impossible since $e_0$ is empty and $e_{j-i}$ is a singleton.  Therefore the objects $e_n$ are pairwise distinct, and a finite number of new objects can always be chosen outside any prescribed finite list.  Nothing asserts that the entire sequence belongs to one model set.
+\end{proof}
+
+Let $\mathrm{Pair}(p)$ mean that $p$ has one or two elements, equivalently $p=\up ab$ for some $a,b$.  The empty set is not a pair object.  Let $\mathrm{Double}(p)$ mean that $p=\up ab$ for \emph{distinct} $a,b$.
+
+\begin{lemma}[Doubleton test]\label{lem:doubleton}
+If $p$ is an unordered pair, then $p$ is a doubleton exactly when there are disjoint sets $n,k$, neither an unordered pair, such that each intersects $p$.
+\end{lemma}
+\begin{proof}
+Suppose $p=\up ab$ with $a\ne b$.  By Lemma~\ref{lem:infinite} choose four further objects $c,d,e,f$ distinct from one another and from $a,b$.  The sets $n=\{a,c,d\}$ and $k=\{b,e,f\}$ exist by finite Pairing and Union.  They are disjoint, each has three members and therefore is not an unordered pair; moreover $a\in n\cap p$ and $b\in k\cap p$.
+
+Conversely, if $p$ were a singleton $\{a\}$ and both $n$ and $k$ intersected it, then $a\in n\cap k$, contradicting disjointness.  Every unordered pair is either a singleton or a doubleton, so the claim follows.
+\end{proof}
+
+\begin{lemma}[No universal set]\label{lem:no-univ}
+Extensionality, Power Set and $\Tnine$ imply
+\[
+\forall U\ \exists x\ (x\notin U).
+\]
+The derivation uses no Foundation axiom.
+\end{lemma}
+\begin{proof}
+Suppose $V$ is a universal set.  By unordered composition, $P_2=V\Comp V$ consists of \emph{all} unordered pairs: every edge $\up ab$ is a member of $V$, and conversely every output of a composition is an unordered pair.  Put $N=V\setminus P_2$, the set of all non-pair objects.  We now construct the doubletons as a set, using only the unrestricted operations.
+
+Write $G=N\UnProd N$ and $I=N\UnProd P_2$, whose existence is guaranteed by Lemma~\ref{lem:pair} if Power Set is available.  Define
+\begin{equation}\label{eq:frege}
+\begin{aligned}
+J&=G\setminus\Int(G), & K&=\Int(I),\\
+L&=(J\Comp K)\cap K, & D&=P_2\cap\bigcup L.
+\end{aligned}
+\end{equation}
+Then $J$ represents pairs of disjoint non-pair objects.  The set $K$ represents pairs $\up np$ where $n$ is a non-pair, $p$ is a pair, and $n\cap p\ne\varnothing$.  Here is the orientation check.  Each edge of $J$ has its two endpoints in $N$, while each edge of $K$ has one endpoint in $N$ and one in $P_2$.  Since $N\cap P_2=\varnothing$, a common endpoint in a $J$--$K$ composition must lie in $N$; write it as $k$.  The other endpoint $n$ of the $J$-edge lies in $N$, and the other endpoint $p$ of the $K$-edge lies in $P_2$.  Thus every output has the form $\up np$ with $n\in N,p\in P_2$.  Membership of $\up nk$ in $J$ is exactly $n\cap k=\varnothing$; membership of $\up kp$ in $K$ is exactly $k\cap p\ne\varnothing$.  The final intersection with $K$ imposes $n\cap p\ne\varnothing$.  Conversely, any $n,k\in N$, $p\in P_2$ meeting these three conditions yield $\up np\in L$.  This proves the exact equivalence
+\begin{equation}\label{eq:frege-orient}
+\up np\in L\ \Longleftrightarrow\
+n\in N,\ p\in P_2,\ n\cap p\ne\varnothing,\
+\ \exists k\in N\ (n\cap k=\varnothing\land k\cap p\ne\varnothing).
+\end{equation}  As $n$ is not a pair while $p$ is, the $P_2$ endpoint of this edge is unambiguous.  Lemma~\ref{lem:doubleton} therefore gives
+\[
+D=\{p:\mathrm{Double}(p)\}.
+\]
+It follows that $S=P_2\setminus D$ is precisely the set of all singleton sets.
+
+Apply the unordered membership filter to $S$, then take a union.  Each member of $S$ is $\{x\}$, and $\{x\}\in\Mem(S)$ exactly when $x\in x$.  Thus
+\[
+B=\bigcup\Mem(S)=\{x:x\in x\}.
+\]
+The difference $R=V\setminus B$ is therefore exactly $\{x:x\notin x\}$.  Since $V$ contains every object, $R\in R\leftrightarrow R\notin R$, a contradiction.
+
+\end{proof}
+
+\begin{remark}\label{rem:power}
+Lemma~\ref{lem:no-univ} is asserted \emph{over the background actually used in the main theorem}.  Its proof above invokes Power Set to construct unordered products.  In this paper we do not need, and do not claim, that its displayed derivation remains valid after removing Power Set.  The later eight-axiom equivalence retains Power Set.
+\end{remark}
+
+\section{Singleton images and fresh markers}\label{sec:markers}
+The next constructions replace appeals to finite membership-cycle exclusion.
+
+\begin{lemma}[Corrected fan]\label{lem:fan}
+If $m\notin A$, then the set
+\[
+F_m(A)=\{\up am:a\in A\}
+\]
+exists under Extensionality, Power Set and $\Tnine$.
+\end{lemma}
+\begin{proof}
+First form $D=A\cup\{m\}$, $P=\Pow(D)$ and $s=\{m\}$.  By direct examination of the unordered composition,
+\[
+P\Comp\{s\}=\{\up am:a\in A\cup\{m\}\}.
+\]
+The only extra member is $s=\up mm$, so
+\begin{equation}\label{eq:fan}
+F_m(A)=(P\Comp\{s\})\setminus\{s\}.
+\end{equation}
+Here $\{s\}$ is an ordinary singleton whose existence has already been established.
+\end{proof}
+
+\begin{lemma}[Local singleton images]\label{lem:si}
+For every set $A$ there exists
+\begin{equation}\label{eq:si}
+\SI(A)=\{\{a\}:a\in A\}.
+\end{equation}
+No Foundation or bounded-Separation instance is used.
+\end{lemma}
+\begin{proof}
+By Lemma~\ref{lem:no-univ}, choose $m$ outside
+\[
+A\cup\bigcup A\cup\bigcup\bigcup A.
+\]
+The marker therefore satisfies
+\begin{equation}\label{eq:avoid}
+m\notin A,\qquad (\forall a\in A)\ m\notin a,
+\qquad(\forall a\in A)(\forall b\in a)\ m\notin b.
+\end{equation}
+Form $F=F_m(A)$ and $Q=A\UnProd F$.  The unordered membership filter
+\[
+E=\Mem(Q)
+\]
+consists exactly of matching edges $\up a{\up am}$ with $a\in A$.  Indeed, a surviving edge $\up a{\up bm}$ has either $a\in\up bm$ or $\up bm\in a$.  The second alternative contradicts the last condition in \eqref{eq:avoid}, since $m\in\up bm$.  The first gives $a=b$ or $a=m$, and the latter contradicts $m\notin A$.  Conversely, each genuine matching edge survives.
+
+Now an output $\up ab\in E\Comp E$ with $a,b\in A$ has a common intermediate tagged endpoint; hence $\up am=\up bm$ and $a=b$.  Since $\Pow(A)$ consists of the sets all of whose members belong to $A$, it removes any other kind of output.  Thus
+\begin{equation}\label{eq:si-construction}
+\SI(A)=\Pow(A)\cap(E\Comp E).
+\end{equation}
+This also covers $A=\varnothing$.
+\end{proof}
+
+\begin{lemma}[The bounded self-membership and relative Russell sets]\label{lem:russell}
+For any $A$ the following sets exist:
+\[
+\operatorname{Self}(A)=\{x\in A:x\in x\},\qquad
+R(A)=\{x\in A:x\notin x\}.
+\]
+Moreover, $R(A)\notin A$ and $R(A)\notin R(A)$.
+\end{lemma}
+\begin{proof}
+A singleton $\{x\}$ belongs to $\Mem(\SI(A))$ exactly when $x\in A$ and $x\in x$.  Therefore
+\[
+\operatorname{Self}(A)=\bigcup\Mem(\SI(A)),
+\qquad R(A)=A\setminus\operatorname{Self}(A).
+\]
+If $r=R(A)$ and $r\in r$, its defining condition implies $r\notin r$.  Hence $r\notin r$.  If also $r\in A$, its defining condition would imply $r\in r$.  Thus $r\notin A$.
+\end{proof}
+
+For a set $W$, define the finite membership-depth envelope
+\begin{equation}\label{eq:depth}
+W^{[0]}=W,\qquad W^{[k+1]}=W^{[k]}\cup\bigcup W^{[k]}.
+\end{equation}
+Its members are exactly the objects reachable by at most $k$ downward membership steps starting from a member of $W$.  These envelopes exist by finite iteration of Union and binary union; cycles do not affect the definition.
+
+\begin{lemma}[Markers without short membership cycles]\label{lem:marker}
+For every set $W$ and natural number $d$, there exists $m$ such that
+\begin{align}
+&\forall t\in W^{[d]}\quad m\notin t,\label{eq:marker1}\\
+&\forall f\quad (m\in f\ \Longrightarrow\ f\notin m).\label{eq:marker2}
+\end{align}
+In particular $m\notin m$.  The integer $d$ is fixed externally; no infinite iteration or Replacement is required.
+\end{lemma}
+\begin{proof}
+Let $D=W^{[d+5]}$, and take $r=R(D)$ as in Lemma~\ref{lem:russell}.  Then $r\notin D$ and $r\notin r$.  Put
+\[
+s=\{r\},\qquad ss=\{s\},\qquad m=\{\varnothing,ss\}.
+\]
+If $f\in m$, then $f=\varnothing$ or $f=ss$.  In the first case $m\notin f$ because $f$ is empty.  In the second case $m\in ss$ would imply $m=s$.  But $m=s$ would force both $\varnothing$ and $ss$ to equal $r$, hence $\varnothing=ss$, impossible since $s\in ss$ and $\varnothing$ has no members.  This proves \eqref{eq:marker2}, and taking $f=m$ gives $m\notin m$.
+
+If $m\in t$ for $t\in W^{[d]}$, follow the chain
+\[
+r\in s\in ss\in m\in t.
+\]
+Then $r\in W^{[d+4]}\subseteq D$, contrary to the choice of $r$.  This establishes \eqref{eq:marker1}.
+\end{proof}
+
+\section{The finite assignment-frame construction}\label{sec:finite}
+The remainder of the forward implication is a finite set-algebraic compilation of bounded formulas.  We give all the construction rules and verify their exact semantics, since merely appealing to a formal proof checker would not constitute a self-contained mathematical proof.
+
+\begin{definition}[Represented assignment frame]\label{def:frame}
+Fix an ambient set $E$ and finitely many coordinate domains $D_0,\ldots,D_{N-1}$ with $D_i\subseteq E$.  A \emph{represented $N$-frame} consists of a set $T$ of assignment codes; for each $i<N$, a marker $m_i$, a tagged domain
+\[
+U_i=\{\up x{m_i}:x\in D_i\},
+\]
+and a set $P_i\subseteq T\UnProd U_i$.  They satisfy:
+\begin{enumerate}[label=(F\arabic*),leftmargin=3em,itemsep=2pt]
+\item $E\cap U_i=T\cap U_i=\varnothing$; $U_i\cap U_j=\varnothing$ whenever $i\ne j$;
+\item for each $t\in T$ there exists exactly one $u_i(t)\in U_i$ such that $\up t{u_i(t)}\in P_i$;
+\item $u_i(t)=\up{x_i(t)}{m_i}$ for a unique $x_i(t)\in D_i$;
+\item every vector $(a_i)_{i<N}\in\prod_{i<N}D_i$ is represented by at least one $t\in T$ with $x_i(t)=a_i$;
+\item $m_i\notin D_i$, $m_i\notin e$ for all $e\in E$, and $m_i\notin b$ whenever $b\in a\in D_i$.
+\end{enumerate}
+No assertion of unique codes for a vector is needed; uniqueness of each \emph{decoded coordinate} is enough.  The displayed product is only metatheoretic notation for a finite tuple of choices, not an assumed object-language set.
+\end{definition}
+
+\begin{lemma}[One fresh extension step]\label{lem:extension}
+Suppose a represented frame $T$ has been constructed for $D_0,\ldots,D_{n-1}\subseteq E$.  If $X\subseteq E$ is another set, a represented frame for $X,D_0,\ldots,D_{n-1}$ exists, with all old coordinates preserved.  In particular an $N$-frame exists for every finite list of coordinate domains contained in $E$.
+\end{lemma}
+\begin{proof}
+Collect $E$, $X$, $T$ and all the old tag-sort sets $U_i$ into a single finite \emph{registry} $W$.  By Lemma~\ref{lem:pair} the registry is a set.  Apply Lemma~\ref{lem:marker} with $d=6$, choosing a marker $m$ fresh relative to every object of the first six membership layers below $W$, and satisfying \eqref{eq:marker2}.  Put
+\begin{equation}\label{eq:tuple-extension}
+F=F_m(X),\qquad T'=T\UnProd F
+ =\{\up tf:t\in T,\ f\in F\}.
+\end{equation}
+We verify every collision and reverse-membership assertion used below.  Each $f\in F$ contains $m$, and each $t'\in T'$ has a representation $t'=\up tf$ with $t\in T,f\in F$.  The registry $W$ contains $E,X,T$ and every old $U_i$ as elements.  By the marker lemma, $m\notin z$ whenever $z$ is reachable in at most six membership steps from a member of $W$.  Thus each of the following assumed coincidences leads to a contradiction:
+\begin{center}
+\renewcommand{\arraystretch}{1.22}
+\begin{tabular}{@{}p{0.24\linewidth}p{0.64\linewidth}@{}}
+\toprule
+Collision or reversed edge & Reason for impossibility \\
+\midrule
+$F\cap T\ne\varnothing$ & If $f\in F\cap T$ then $m\in f\in T\in W$. \\
+$F\cap Y\ne\varnothing$, $Y\in W$ & If $f\in F\cap Y$, then $m\in f\in Y\in W$ (in particular $Y=E$ or $Y=U_i$). \\
+$T'\cap T\ne\varnothing$ & If $t'\in T'\cap T$, then $m\in f\in t'\in T\in W$. \\
+$T'\cap Y\ne\varnothing$, $Y\in W$ & If $t'\in T'\cap Y$, then $m\in f\in t'\in Y\in W$ (in particular $Y=E$ or $Y=U_i$). \\
+$T'\cap F\ne\varnothing$ & From $t'=\up tf=\up xm$ and $f\in t'$ the endpoint lemma gives $f=x\in X$ or $f=m$.  The first gives $m\in f\in X\in W$; the second gives $m\in f=m$, violating marker irreflexivity. \\
+$t'\in t$, $t'\in T',t\in T$ & The path $m\in f\in t'\in t\in T\in W$ contradicts freshness. \\
+$t'\in f'$, $t'\in T',f'\in F$ & Write $f'=\up xm$.  Then $t'=x\in X$, giving $m\in f\in t'\in X\in W$, or $t'=m$, giving $m\in f\in m$, contradicting the no-two-cycle property. \\
+\bottomrule
+\end{tabular}
+\end{center}
+No row presupposes that an arbitrary membership cycle is impossible.  All contradictions are either finite paths into the chosen registry or the special two-cycle prohibition built into $m$.  These checks show pairwise disjointness of $T,F,T'$, disjointness of $F,T'$ from $E$ and every old $U_i$, and exclusion of exactly the two reverse edges needed for the projections.
+
+Further, the decomposition $t'=\up tf$ is unique with $t\in T$ and $f\in F$: if also $t'=\up{\tilde t}{\tilde f}$, Lemma~\ref{lem:endpoints} yields either $t=\tilde t,f=\tilde f$ or $t=\tilde f,f=\tilde t$.  The latter contradicts $T\cap F=\varnothing$.  Similarly, the tagged element $f=\up xm$ determines $x\in X$ uniquely, since $m\notin X$.  Therefore the two components of each new tuple and all raw new-coordinate values are well defined.
+
+Define the \emph{prefix} and \emph{new-coordinate} edge sets by
+\begin{equation}\label{eq:projections}
+\Gamma=\Mem(T'\UnProd T),\qquad
+\Lambda=\Mem(T'\UnProd F).
+\end{equation}
+Because the sorts are disjoint and reverse membership is excluded, a surviving edge $\up{t'}t$ in $\Gamma$ must express $t\in t'$, not $t'\in t$; since $t'=\up tf$ and $T\cap F=\varnothing$, this means precisely that $t$ is the old-prefix component of $t'$.  The analogous assertion holds for $\Lambda$ and the $F$ component.  Thus both projections are exact.
+
+The new raw coordinate domain is $X$, its tagged sort is $F$, and its marker is $m$.  The raw-to-tag map is injective by the preceding endpoint argument.  By construction each new tuple has exactly one prefix and exactly one new tagged value; the previously unique projections on the prefix therefore remain unique after lifting.  Since $X,E\in W=W^{[0]}$, every $e\in E$ lies in $W^{[1]}$, and every $b\in a\in X$ lies in $W^{[2]}$.  Freshness relative to $W^{[6]}$ therefore gives
+\[
+m\notin X,\qquad (\forall e\in E)\ m\notin e,
+\qquad (\forall a\in X)(\forall b\in a)\ m\notin b.
+\]
+Thus the new coordinate satisfies all clauses (F1)--(F5).  For an old coordinate $i$, use the typed join of $\Gamma\subseteq T'\UnProd T$ with its previous projection $P_i\subseteq T\UnProd U_i$.  Pairwise disjointness of $T',T,U_i$ permits Lemma~\ref{lem:typed}.  The result is a genuine projection set $P_i'\subseteq T'\UnProd U_i$ recording the same old tagged coordinate.  The markers and raw-domain specifications for those old coordinates remain unchanged; the new marker satisfies (F5) by its choice relative to $W$.  Every assignment $(a,a_0,\ldots,a_{n-1})$ is represented by choosing an old code $t$ for $(a_0,\ldots,a_{n-1})$, forming $f=\up am\in F$, and then $t'=\up tf$.
+
+For the base case $n=0$, take $T=\{\varnothing\}$, with no coordinate projections.  Iterating the proved extension step finitely many times yields the asserted frame.  The induction never requires the set of all such stages or any object-language recursion axiom.
+\end{proof}
+
+\begin{lemma}[Raw-to-tag matching]\label{lem:matching}
+In a represented frame the following set of edges exists for each $i$:
+\[
+M_i=\{\up a{\up a{m_i}}:a\in D_i\}\subseteq E\UnProd U_i.
+\]
+Consequently, cross-sort equality and directed membership between any two \emph{distinct} coordinates admit sets of representing edges.
+\end{lemma}
+\begin{proof}
+By (F5) and the same argument as in Lemma~\ref{lem:si},
+\[
+M_i=\Mem(D_i\UnProd U_i).
+\]
+Indeed, consider an edge $\up a{\up b{m_i}}$ with $a,b\in D_i$.  If $a\in\up b{m_i}$, then $a=b$ or $a=m_i$; the latter is impossible by (F5).  If instead $\up b{m_i}\in a$, then $m_i\in\up b{m_i}\in a$, again contradicting (F5).  Hence the membership filter retains exactly the matching edges with $a=b$.  Disjointness of the raw and tagged sorts then gives each retained edge its unique typed orientation.
+
+For $i\ne j$, compose $M_i$ (read backward from $U_i$ to $E$) and $M_j$ (read forward from $E$ to $U_j$).  Lemma~\ref{lem:typed} applies to the three pairwise disjoint sorts and yields exactly
+\begin{equation}\label{eq:eqedge}
+R_{ij}^{=} =\bigl\{\up{u_i}{u_j}:u_i=\up a{m_i},\ u_j=\up a{m_j},\ a\in D_i\cap D_j\bigr\}.
+\end{equation}
+For membership, first form the set of edges
+\[
+H_i=\Int(U_i\UnProd E).
+\]
+If $u_i=\up a{m_i}$ and $b\in E$, then $u_i\cap b\ne\varnothing$ if and only if $a\in b$, since (F5) gives $m_i\notin b$.  Thus $H_i$ represents directed membership $a\in b$ from the tagged $i$-sort to the raw sort $E$.  Compose $H_i$ with $M_j$ to obtain exactly
+\begin{equation}\label{eq:inedge}
+R_{ij}^{\in}=\bigl\{\up{u_i}{u_j}:u_i=\up a{m_i},\ u_j=\up b{m_j},\ a\in b,\ a\in D_i,\ b\in D_j\bigr\}.
+\end{equation}
+No use is made of $\neg(a\in a)$; the case $i=j$ is handled separately.
+\end{proof}
+
+\section{Atomic truth sets and bounded quantifiers}\label{sec:truth}
+We keep a fixed represented frame $(T,(U_i,P_i)_{i<N})$.  For $t\in T$ write $t_i=x_i(t)$ for its uniquely decoded $i$th value.
+
+\begin{lemma}[Atomic truth sets]\label{lem:atomic}
+For any $i,j<N$ the sets
+\[
+E_{ij}=\{t\in T:t_i=t_j\},\qquad
+A_{ij}=\{t\in T:t_i\in t_j\}
+\]
+exist, including $A_{ii}$.
+\end{lemma}
+\begin{proof}
+For $i=j$, $E_{ii}=T$.  Suppose $i\ne j$.  Use the appropriate cross-sort relation $R_{ij}$ from Lemma~\ref{lem:matching}.  The relation from $T$ through $U_i$ to $U_j$ is represented by the typed composition $P_i\Comp R_{ij}$.  Join this relation with the reverse of $P_j$, returning from $U_j$ to $T$.  Since the source and target sorts both equal $T$, use the filtered join
+\[
+Z_{ij}=\bigl((P_i\Comp R_{ij})\Comp P_j\bigr)\cap(T\UnProd T),
+\]
+where intermediate joins, when necessary, are themselves filtered by their endpoint products as in Lemma~\ref{lem:typed}.  Its edges $\up st$, $s,t\in T$, correspond to a common path
+\[
+s\longleftrightarrow u_i(s)\quad R_{ij}\quad u_j(t)\longleftrightarrow t.
+\]
+The required truth set is the diagonal of this relation:
+\begin{equation}\label{eq:diag}
+\operatorname{diag}_T(Z_{ij})
+=\bigcup\bigl(Z_{ij}\cap\SI(T)\bigr).
+\end{equation}
+Indeed, $\{t\}\in Z_{ij}\cap\SI(T)$ exactly when $t\in T$ and the cross-coordinate condition holds for the same code on both sides.  The unique decoded values then establish the stated equality or membership condition.
+
+For $i=j$ in the membership case, use Lemma~\ref{lem:russell} to form $B_i=\{a\in D_i:a\in a\}$.  Form the tagged image $F_{m_i}(B_i)\subseteq U_i$ using the fan of Lemma~\ref{lem:fan}; the marker remains outside $B_i$ because $B_i\subseteq D_i$.  Now filter the projection graph $P_i$ by the unordered product $T\UnProd F_{m_i}(B_i)$, take its union and intersect with $T$:
+\begin{equation}\label{eq:diag-member}
+A_{ii}=T\cap\bigcup\bigl(P_i\cap(T\UnProd F_{m_i}(B_i))\bigr).
+\end{equation}
+The intersection retains precisely those projection edges whose tagged endpoint decodes to a self-membered $a$.  The final intersection with $T$ removes the tagged endpoints of the surviving edges.  This proves the diagonal case without any restriction on membership cycles.
+\end{proof}
+
+For $J\subseteq\{0,\ldots,N-1\}$, put
+\[
+s\equiv_J t\ \Longleftrightarrow\ (\forall j\in J)(s_j=t_j).
+\]
+This is a symmetric relation on $T$.  Its edge set exists:
+\begin{equation}\label{eq:agreement}
+G_J=\bigcap_{j\in J}\left((P_j\Comp P_j)\cap(T\UnProd T)\right),
+\end{equation}
+where $G_\varnothing=T\UnProd T$.  Indeed, two codes share a tagged $j$th neighbor precisely when their raw $j$th values agree.  For $j\ne k$, the intersection of the symmetric graphs of agreement is exact even though the edges are unordered: reversing the endpoints does not change agreement.
+
+\begin{lemma}[Cylindrification]\label{lem:cyl}
+For every $S\subseteq T$ and every coordinate $k<N$, the set
+\[
+C_k(S)=\{t\in T:\exists s\in S\ \forall j\ne k\ (s_j=t_j)\}
+\]
+exists.
+\end{lemma}
+\begin{proof}
+The finite set of coordinates $J=\{0,\ldots,N-1\}\setminus\{k\}$ determines an agreement graph $G_J$ by \eqref{eq:agreement}.  Define
+\begin{equation}\label{eq:cyl}
+C_k(S)=T\cap\bigcup\left(G_J\cap(S\UnProd T)\right).
+\end{equation}
+If $t$ lies in the right-hand side, one of the intersected edges is $\up st$ with $s\in S$ and $t\in T$.  Its membership in $G_J$ means $s\equiv_Jt$, regardless of the unordered orientation because the relation is symmetric.  The converse uses the same edge $\up st$.  This is precisely the displayed existential condition.
+\end{proof}
+
+\subsection*{Syntax and semantics of bounded formulas}
+For each natural number $q$, the formulas with $q$ available variables form the following inductively generated collection $\Dzero(q)$:
+\[
+\begin{gathered}
+(v_i=v_j),\quad (v_i\in v_j),\quad \bot,\quad
+\neg\psi,\quad(\psi\wedge\theta),\\
+\exists v_0\in v_{i+1}\;\psi(v_0,v_1,\ldots,v_q)
+\qquad (i,j<q;\ \psi\in\Dzero(q+1)).
+\end{gathered}
+\]
+Here de Bruijn variable $v_0$ is the newest variable, and entering a quantifier shifts each old free-variable index by one.  This is the same grammar used in \nolinkurl{DeltaZeroSyntax.lean}; universal bounded quantification and other Boolean operators are abbreviations.  The nesting depth is defined by
+\[
+\begin{gathered}
+ d(v_i=v_j)=d(v_i\in v_j)=d(\bot)=0,\quad
+ d(\neg\psi)=d(\psi),\\
+ d(\psi\wedge\theta)=\max(d(\psi),d(\theta)),\qquad
+ d(\exists v_0\in v_{i+1}\,\psi)=1+d(\psi).
+\end{gathered}
+\]
+For an environment $\rho=(\rho(0),\ldots,\rho(q-1))$, define $\rho[y]$ of length $q+1$ by $\rho[y](0)=y$ and $\rho[y](i+1)=\rho(i)$.  Ordinary satisfaction $\rho\models\varphi$ evaluates equality and membership in the original one-sorted membership structure, commutes with $\neg$ and $\wedge$, makes $\bot$ false, and has the bounded clause
+\begin{equation}\label{eq:holds}
+\rho\models(\exists v_0\in v_{i+1}\,\psi)
+\iff\exists y\,(y\in\rho(i)\ \land\ \rho[y]\models\psi).
+\end{equation}
+For a set $E$, define $\rho\models_E\varphi$ by the same recursion, except that the bounded clause is
+\begin{equation}\label{eq:holdsE}
+\rho\models_E(\exists v_0\in v_{i+1}\,\psi)
+\iff\exists y\in E\,(y\in\rho(i)\ \land\ \rho[y]\models_E\psi).
+\end{equation}
+Thus only newly quantified values are required to belong to $E$; free-variable values need not initially be in $E$.  In the application below they are in fact all in $E$.  Given an $N$-frame $T$ and $q\le N$, the environment decoded from a code $t\in T$ is
+\begin{equation}\label{eq:rho}
+\rho^q_t(i)=x_{q-1-i}(t)\qquad(i<q).
+\end{equation}
+The compiler constructs, for each $q,\varphi\in\Dzero(q)$ with $q+d(\varphi)\le N$ and with all spare coordinate domains equal to $E$, a \emph{set} $S^q_\varphi\subseteq T$ with the exact semantic specification
+\begin{equation}\label{eq:compiler-spec}
+t\in S^q_\varphi\quad\Longleftrightarrow\quad
+ t\in T\ \land\ \rho^q_t\models_E\varphi.
+\end{equation}
+A single fixed frame is used throughout this recursion; only the current arity $q$ changes.
+
+\begin{lemma}[Bounded-formula compiler]\label{lem:compiler}
+Let $q$ be the current arity, let $\varphi\in\Dzero(q)$, and fix a represented $N$-frame with $q+d(\varphi)\le N$.  Assume every coordinate with physical index $k\ge q$ has domain $E$.  Then the truth set $S^q_\varphi$ of \eqref{eq:compiler-spec} exists, with no instance of bounded Separation presupposed.
+\end{lemma}
+\begin{proof}
+Proceed by structural induction on $\varphi$, maintaining \eqref{eq:compiler-spec} and the varying arity $q$.  Equation~\eqref{eq:rho} specifies the physical position of each variable.  At a bounded existential quantifier the newest variable occupies the spare physical coordinate $k=q$, and the old index $i$ remains at the physical coordinate $j=q-1-i$ after its de Bruijn index is shifted to $i+1$.
+
+The primitive atomic cases and Boolean operations are as follows.  Equality and membership are given by Lemma~\ref{lem:atomic}, and falsity by the empty set.  If $S_\psi$ and $S_\theta$ are the truth sets for subformulas, then
+\[
+S_{\neg\psi}=T\setminus S_\psi,
+\qquad S_{\psi\land\theta}=S_\psi\cap S_\theta.
+\]
+(The other Boolean connectives are abbreviations.)  Suppose $\varphi=\mathrm{bex}(i,\psi)$ is a bounded existential formula of arity $q$, with $\psi$ of arity $q+1$.  Let $j=q-1-i$ be the physical coordinate of its bound variable and let $k=q$ be the new coordinate.  The induction hypothesis applies to $\psi$ because
+\[
+(q+1)+d(\psi)=q+d(\varphi)\le N.
+\]
+Let $S^{q+1}_\psi$ be its truth set on the \emph{same} $N$-frame.  The set $A_{kj}$ from Lemma~\ref{lem:atomic} tests $y\in v_i$.  Define
+\begin{equation}\label{eq:bex}
+S^q_\varphi=C_k(S^{q+1}_\psi\cap A_{kj}).
+\end{equation}
+By Lemma~\ref{lem:cyl}, a code $t$ belongs to this set exactly when another code $s$ agrees with $t$ everywhere except possibly at $k$, satisfies $\psi$, and has $s_k\in s_j=t_j$.  Since $D_k=E$ and the frame represents \emph{every} tuple of admissible values, this is equivalent to existence of a witness $y\in E\cap t_j$ satisfying the body.  In the converse direction, given such a witness, replace just the $k$th decoded value of $t$ by $y$ and use property (F4) to realize the modified vector; no assumption that codes themselves are unique is needed.
+
+This proves precisely the semantic clause \eqref{eq:holdsE} for the environment \eqref{eq:rho}.  The body has one more variable and one fewer unused quantifier level, so a single fixed $N$-frame suffices throughout the induction.
+\end{proof}
+
+\section{Localization and the separation set}\label{sec:localization}
+The compiler so far quantifies over a selected set $E$.  We show that one such $E$ can be chosen for each formula and each fixed family of parameters so that the bounded semantics are unchanged.  This step requires only finite Union and ordinary logical induction.
+
+\begin{lemma}[Finite-depth localization]\label{lem:local}
+Fix a bounded formula $\varphi(x,\vec p)$ of nesting depth $d$ and a set $A$.  There is a set $E$ containing every member of $A$ and every parameter $p_i$ such that, for all $x\in A$,
+\[
+\varphi(x,\vec p)\quad\longleftrightarrow\quad
+\varphi^E(x,\vec p),
+\]
+where $\varphi^E$ means that each boundedly quantified witness must in addition belong to $E$.
+\end{lemma}
+\begin{proof}
+Collect into a set $B$ all elements of $A$ and the finitely many parameters $p_i$ by binary union.  Let $E=B^{[d]}$, using \eqref{eq:depth}.  Initially, every free-variable value is a member of $B$.  After one bounded quantifier, a witness is an element of one of the already represented values and is therefore in $B^{[1]}$.  After $r\le d$ nested bounded quantifiers, every selected witness and every previously assigned value lies in $B^{[r]}\subseteq E$.  Induction on $\varphi$ now shows that adding the condition ``$y\in E$'' changes no bounded existential quantifier.  Atomic and Boolean cases are immediate, and bounded universals follow by negation.  There is no induction on the membership relation itself, so non-well-foundedness creates no exception.
+\end{proof}
+
+\begin{proof}[Proof of the forward direction of Theorem~\ref{thm:main}]
+Assume Extensionality, Power Set and $\Tnine$.  Lemma~\ref{lem:pair} provides Pairing and binary union; Empty Set and Union are already members of $\Tnine$.  It remains to prove arbitrary parameterized bounded Separation.
+
+Fix a bounded formula $\varphi(x,p_0,\ldots,p_{n-1})$ and a set $A$.  If $A$ is empty, the empty set is the required separation set.  Otherwise select $a_0\in A$.  By Lemma~\ref{lem:local}, choose $E\supseteq A\cup\{p_0,\ldots,p_{n-1}\}$ which localizes $\varphi$.  Put
+\[
+m=n+1,\qquad N=m+d(\varphi).
+\]
+Choose the $N$ coordinate domains as follows: physical positions $0,\ldots,n-1$ contain the singleton domains of the parameters in reverse order; position $n$ has domain $A$; and positions $n+1,\ldots,N-1$ all have domain $E$.  Every domain is a subset of $E$.  By Lemma~\ref{lem:extension} there is a complete represented $N$-frame $T$ for these domains.
+
+The compiler of Lemma~\ref{lem:compiler} gives a set $S\subseteq T$ whose members are precisely the assignments satisfying the $E$-localized formula.  The unrestricted intermediate coordinates cause no trouble: they can always be filled by $a_0\in A\subseteq E$, and when quantifier witnesses are needed they can be replaced as prescribed in the compiler induction.
+
+Project $S$ onto the \emph{raw} value of its physical root coordinate $n$.  This set exists by applying the image construction \eqref{eq:image} first to the root projection $P_n\subseteq T\UnProd U_n$, then to the raw-to-tag matching relation $M_n\subseteq E\UnProd U_n$ of Lemma~\ref{lem:matching}, read backwards from $U_n$ to $E$.  Both images are exact because their endpoint sorts are disjoint.  Hence the resulting set $Z$ satisfies
+\[
+\begin{aligned}
+x\in Z
+&\ \longleftrightarrow\ x\in A\ \land\
+\exists t\in S\ \bigl(t_n=x\bigr)\\
+&\ \longleftrightarrow\ x\in A\ \land\
+\varphi^E(x,p_0,\ldots,p_{n-1})\\
+&\ \longleftrightarrow\ x\in A\ \land\
+\varphi(x,p_0,\ldots,p_{n-1}).
+\end{aligned}
+\]
+For the second equivalence, every represented tuple has the prescribed parameter coordinates, while any $x\in A$ extends to an admissible full tuple by filling the tail with $a_0$; the compiler then determines whether its code lies in $S$.  The third equivalence is localization.  This is precisely the desired instance of $\Dzero$-Separation.  Since the formula, its parameters and $A$ were arbitrary, the full schema follows.
+\end{proof}
+
+\section{The converse implication}\label{sec:converse}
+\begin{proposition}\label{prop:reverse}
+Extensionality, Power Set, Empty Set, Pairing, Union and $\Dzero$-Separation imply every axiom of $\Tnine$, without Foundation.
+\end{proposition}
+\begin{proof}
+Empty Set, singleton sets, and set unions follow immediately from the conventional axioms.  Difference and intersection are instances of $\Dzero$-Separation, using $x\notin B$ and $x\in B$ respectively.  A common superset is $A\cup B$.
+
+For the two filters, first note that
+\begin{equation}\label{eq:pair-bounded}
+\begin{split}
+\operatorname{UP}(p,a,b)\iff{}&a\in p\land b\in p\land
+\forall z\in p\ (z=a\lor z=b)
+\end{split}
+\end{equation}
+is a bounded formula and is equivalent to $p=\up ab$.  Accordingly, for a candidate $p$, the predicate
+\[
+\exists a\in p\ \exists b\in p\left(
+\operatorname{UP}(p,a,b)\land
+\exists z\in a\ (z\in b)\right)
+\]
+is bounded, and separates $\Int(X)$ from $X$.  Likewise
+\[
+\exists a\in p\ \exists b\in p\left(
+\operatorname{UP}(p,a,b)\land(a\in b\lor b\in a)\right)
+\]
+separates $\Mem(X)$ from $X$.
+
+Finally fix $Q,R$.  Form
+\[
+D=\bigcup Q\cup\bigcup R.
+\]
+Every endpoint of an edge in $Q$ or $R$ belongs to $D$.  By Power Set, $\Pow(D)$ exists, and every required output $p=\up ac$ belongs to it.  The relation
+\begin{equation}\label{eq:comp-bounded}
+\begin{aligned}
+\Phi(p,Q,R,D)\iff \exists a\in D\ \exists b\in D\ \exists c\in D\ [\,
+&\operatorname{UP}(p,a,c)\ \land\\
+&\exists e\in Q\ \operatorname{UP}(e,a,b)\ \land\\
+&\exists f\in R\ \operatorname{UP}(f,b,c)\,]
+\end{aligned}
+\end{equation}
+is a bounded formula.  Separate
+\[
+C=\{p\in\Pow(D):\Phi(p,Q,R,D)\}.
+\]
+If $p\in C$, its witnesses exhibit $p\in Q\Comp R$.  Conversely, if $p\in Q\Comp R$, its witnesses occur among the elements of $D$, and $p\subseteq D$, so $p\in C$.  Therefore $C=Q\Comp R$.  Every operation of $\Tnine$ has been obtained.
+\end{proof}
+
+Combining Proposition~\ref{prop:reverse} with the forward implication proves Theorem~\ref{thm:main} in full.
+
+\section{Scope of the result and formal verification}
+\begin{corollary}[Precise relative axiomatization]\label{cor:precise}
+Over Extensionality and Power Set, the conjunction of Empty Set, Pairing, Union, and the full parameterized $\Dzero$-Separation schema is equivalent to $\Tnine$.  Equivalently, \emph{over Extensionality, Power Set, Pairing, and Union}, the $\Dzero$-Separation schema is equivalent to the four existence axioms for difference, unordered composition, unordered intersection filtering, and unordered membership filtering.
+\end{corollary}
+\begin{proof}
+The first statement is Theorem~\ref{thm:main}.  For the second, note that Pairing and Union supply singleton sets and a common superset, difference supplies the empty set and intersection, and the remaining four axioms therefore reproduce $\Tnine$.  In the reverse direction, all four are available from bounded Separation, as in Proposition~\ref{prop:reverse}.
+\end{proof}
+
+The omission of Pairing and Union from the \emph{background} in the first formulation is possible only because they are conclusions of $\Tnine$.  The theorem does not claim that bare $\Dzero$-Separation, over Extensionality and Power Set alone, implies Pairing or Union.  The equivalence is semantic for arbitrary nonempty one-sorted membership structures, whether or not they satisfy Foundation or Infinity.  First-order completeness can then be used to translate this semantic equivalence into ordinary deductive equivalence; a formal first-order proof calculus is not itself part of the Lean development.
+
+The proof is deliberately constructed with \emph{unordered} edges, even for directed atomic membership.  It is the distinctness of tagged sorts and the ability to choose markers avoiding finitely many membership layers, rather than Foundation, that makes the edges orientable.  The use of a relative Russell set is local and harmless: it separates only the self-membership predicate, whose sethood has already been derived by explicit operations.  This is not an appeal to unrestricted comprehension.
+
+The formal counterpart uses a one-sorted membership relation and a parameterized de Bruijn syntax of bounded formulas.  The principal theorem is
+\begin{center}
+\small\nolinkurl{bounded_zermelo_iff_bzminus_plus_nine_no_foundation}.
+\end{center}
+It appears in the module \nolinkurl{FoundationFreeEquivalenceCandidate.lean}.  The supplied green repository includes \nolinkurl{FoundationFreeKernelAudit.lean}; its \nolinkurl{KERNEL_VERIFICATION.md} records successful Lean 4.20.0 builds and axiom audits on 13 November 2026.  The formalized endpoint is the \emph{nine-axiom} equivalence.  The eight-axiom simplification is proved in the article by the elementary derivations in Theorem~\ref{thm:main}, rather than claimed as a separately named Lean endpoint.  The report lists only \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound} as logical kernel dependencies.  These are metatheoretic principles of Lean and are not object-theoretic Foundation or Choice axioms.  The mathematical argument above does not appeal to the verification report to justify any intermediate lemma.
+
+\begin{remark}[Relationship with NF]
+The unordered composition and intersection constructions resemble those in the finite axiomatization of stratified comprehension in \cite{AlJohar2020}.  One may compare the presentations by omitting Foundation and Power Set and replacing the unordered membership filter by a universal-set axiom.  This comparison concerns the \emph{algebra of primitive set operations}; it does not identify the two theories or imply a relative consistency result.
+\end{remark}
+
+\begin{thebibliography}{9}
+\bibitem{AlJohar2020}
+Z. A. Al-Johar, \emph{Short Axiomatization of Stratified Comprehension}, arXiv:2009.03185v2, 2020. \url{https://arxiv.org/abs/2009.03185}.
+\bibitem{LeanRepo}
+Z. A. Al-Johar, \emph{bounded\_zermelo}, Lean 4 formal development and Foundation-free kernel audit, checked version dated 13 November 2026. \url{https://github.com/zaljohar/bounded_zermelo}.  A fixed archived release is recommended for the final published version.
+\end{thebibliography}
+\end{document}
