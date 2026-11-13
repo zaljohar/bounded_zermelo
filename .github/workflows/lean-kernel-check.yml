@@ -10,16 +10,16 @@ permissions:
 
 jobs:
   verify:
-    name: Build and audit
+    name: Build both equivalence endpoints
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-
-      - name: Install Lean and build every project root
+      - name: Install Lean 4 and build
         uses: leanprover/lean-action@v1
         with:
           build: true
-
-      - name: Print endpoint types and trusted axioms
-        run: lake env lean KernelAudit.lean
+      - name: Audit original verified endpoint
+        run: lake env lean EquivalenceMain.lean
+      - name: Audit new Foundation-free endpoint
+        run: lake env lean FoundationFreeKernelAudit.lean
