@@ -30,13 +30,13 @@
 \newcommand{\restr}{\upharpoonright}
 \title{\vspace{-2.3em}\textbf{A Foundation-Free Finite Axiomatization\\[3pt] of Bounded Zermelo Set Theory}}
 \author{Zuhair A. Al-Johar}
-\date{13 November 2026\\[2pt]\small Revised and expanded self-contained proof}
+\date{16 November 2026\\[2pt]\small Revised and expanded self-contained proof}
 \begin{document}
 \maketitle
 \begin{abstract}
-We prove that bounded Zermelo set theory without Foundation or Infinity is finitely axiomatizable by Extensionality, Power Set, and nine unrestricted existence principles, including unrestricted composition and two filters on unordered-pair relations.  With Pairing and Union retained as conventional axioms, the result takes a particularly short form: Extensionality, Power Set, Pairing, Union, and four additional principles suffice, namely relative difference, unordered relational composition, an unordered intersection filter, and an unordered membership filter.  The difficult implication constructs arbitrary parameterized bounded-Separation instances using finite-depth fresh markers and finite sets of tagged assignments.  Self-membership is handled directly, rather than excluded by Foundation.  We give the constructions and their correctness proofs in ordinary set-theoretic language, and explain the reverse implication.  No Foundation, Infinity, Replacement, or Choice axiom of the object theory is used.
+Finite axiomatizability of bounded Separation is classically obtainable from finite bases of G\"odel operations.  We give a compact alternative finite axiomatization of the foundation- and infinity-free core of bounded Zermelo set theory by Extensionality, Power Set, and nine unrestricted existence principles, including unrestricted composition and two filters on unordered-pair relations.  With Pairing and Union retained as conventional axioms, the result takes a particularly short form: Extensionality, Power Set, Pairing, Union, and four additional principles suffice, namely relative difference, unordered relational composition, an unordered intersection filter, and an unordered membership filter.  The difficult implication constructs arbitrary parameterized bounded-Separation instances using finite-depth fresh markers and finite sets of tagged assignments.  Self-membership is handled directly, rather than excluded by Foundation.  We give the constructions and their correctness proofs in ordinary set-theoretic language, and explain the reverse implication.  No Foundation, Infinity, Replacement, or Choice axiom of the object theory is used.
 \end{abstract}
-\noindent\textbf{Keywords:} bounded separation; finite axiomatization; rudimentary set operations; unordered pairs; Foundation; Zermelo set theory; formal verification.\\
+\noindent\textbf{Keywords:} bounded separation; finite axiomatization; G\"odel operations; rudimentary functions; unordered pairs; Foundation-free set theory; Zermelo set theory; formal verification.\\
 \textbf{MSC 2020:} 03E30, 03E35, 03B35.
 
 \section{Statement of the result}
@@ -67,6 +67,11 @@ Let $\Tnine$ consist of these nine existence principles:
 \item a common superset: for all $A,B$ some $C$ satisfies $A\subseteq C$ and $B\subseteq C$.
 \end{enumerate}
 Let $\mathrm{BZ}_0$ denote Extensionality, Empty Set, Pairing, Union, Power Set, and all instances of $\Dzero$-Separation.  Here the subscript indicates that \emph{Foundation and Infinity are not included}; neither is Replacement or Choice.  A $\Dzero$ formula may have any finite number of parameters and is built from equality and membership using Boolean connectives and quantifiers $\exists x\in y$ and $\forall x\in y$.  We make no stratification restriction.
+
+\paragraph{Prior work and contribution.}
+An early weak Zermelo system with bounded Separation appears in Jensen's work on NFU~\cite{Jensen1968}.  Mac Lane later advocated the bounded-quantification system ZBQC as a weak foundation for mathematics~\cite{MacLane1986}; modern treatments often use the name bounded Zermelo set theory with Choice, or BZC~\cite{Shulman2019}.  These conventional systems should not be identified with $\mathrm{BZ}_0$: standard ZBQC/BZC includes Infinity, Choice, and Foundation (Regularity), while Mathias's system MAC additionally includes Transitive Containment~\cite[Sec.~0]{Mathias2001}.  Up to the redundant presence of Difference in the primitive basis, the present $\mathrm{BZ}_0$ is essentially Mathias's system $M_0$.
+
+The general finite-generation phenomenon is classical.  G\"odel's construction of the constructible universe uses a fixed finite family of fundamental set operations~\cite{Godel1940}, and modern normal-form results show that truth sets for arbitrary $\Dzero$ formulas can be obtained by compositions of finitely many such operations~\cite[Theorem~13.4 and Corollary~13.5]{Jech2003}.  Mathias gives an explicit eight-operation presentation and notes that closure under those operations guarantees $\Dzero$-Separation~\cite[Sec.~4]{Mathias2001}; Jensen's rudimentary functions provide the closely related closure-theoretic framework~\cite[Sec.~1]{Jensen1972}.  Accordingly, the contribution here is not the bare existence of some finite basis for bounded Separation.  It is the particular compact unordered-relation basis proved below: over Extensionality, Power Set, Pairing, and Union, four additional unrestricted principles suffice.  The proof is direct for arbitrary nonempty one-sorted membership structures, including non-well-founded ones, and its nine-principle endpoint is checked in Lean~4.
 
 \begin{theorem}[Foundation-free finite axiomatization]\label{thm:main}
 Over Extensionality and Power Set, the following are equivalent:
@@ -629,7 +634,7 @@ The omission of Pairing and Union from the \emph{background} in the first formul
 
 The proof is deliberately constructed with \emph{unordered} edges, even for directed atomic membership.  It is the distinctness of tagged sorts and the ability to choose markers avoiding finitely many membership layers, rather than Foundation, that makes the edges orientable.  The use of a relative Russell set is local and harmless: it separates only the self-membership predicate, whose sethood has already been derived by explicit operations.  This is not an appeal to unrestricted comprehension.
 
-The formal counterpart uses a one-sorted membership relation and a parameterized de Bruijn syntax of bounded formulas.  The principal theorem is
+The formal counterpart, implemented in Lean~4~\cite{Lean4}, uses a one-sorted membership relation and a parameterized de Bruijn syntax of bounded formulas~\cite{deBruijn1972}.  The principal theorem is
 \begin{center}
 \small\nolinkurl{bounded_zermelo_iff_bzminus_plus_nine_no_foundation}.
 \end{center}
@@ -652,10 +657,29 @@ final Lean declarations were independently checked by the Lean kernel,
 as described in the formal-verification record. The AI system is not an
 author and bears no responsibility for the work.
 
-\begin{thebibliography}{9}
+\small
+\begin{thebibliography}{99}
 \bibitem{AlJohar2020}
 Z. A. Al-Johar, \emph{Short Axiomatization of Stratified Comprehension}, arXiv:2009.03185v2, 2020. \url{https://arxiv.org/abs/2009.03185}.
+\bibitem{deBruijn1972}
+N. G. de Bruijn, \emph{Lambda Calculus Notation with Nameless Dummies, a Tool for Automatic Formula Manipulation, with Application to the Church--Rosser Theorem}, Indagationes Mathematicae (Proceedings) 75 (1972), 381--392. \url{https://doi.org/10.1016/1385-7258(72)90034-0}.
+\bibitem{Godel1940}
+K. G\"odel, \emph{The Consistency of the Axiom of Choice and of the Generalized Continuum-Hypothesis with the Axioms of Set Theory}, Annals of Mathematics Studies, no.~3, Princeton University Press, Princeton, 1940.
+\bibitem{Jech2003}
+T. Jech, \emph{Set Theory: The Third Millennium Edition, Revised and Expanded}, Springer Monographs in Mathematics, Springer, Berlin, 2003. \url{https://doi.org/10.1007/3-540-44761-X}.
+\bibitem{Jensen1968}
+R. B. Jensen, \emph{On the Consistency of a Slight (?) Modification of Quine's ``New Foundations''}, Synthese 19 (1968), 250--263. \url{https://doi.org/10.1007/BF00568059}.
+\bibitem{Jensen1972}
+R. B. Jensen, \emph{The Fine Structure of the Constructible Hierarchy}, Annals of Mathematical Logic 4 (1972), 229--308. \url{https://doi.org/10.1016/0003-4843(72)90001-0}.
+\bibitem{Lean4}
+L. de Moura and S. Ullrich, \emph{The Lean~4 Theorem Prover and Programming Language}, in \emph{Automated Deduction---CADE~28}, Lecture Notes in Computer Science 12699, Springer, 2021, 625--635. \url{https://doi.org/10.1007/978-3-030-79876-5_37}.
 \bibitem{LeanRepo}
 Z. A. Al-Johar, \emph{bounded\_zermelo}, Lean 4 formal development and Foundation-free kernel audit, checked version dated 13 November 2026. \url{https://github.com/zaljohar/bounded_zermelo}.  A fixed archived release is recommended for the final published version.
+\bibitem{MacLane1986}
+S. Mac Lane, \emph{Mathematics, Form and Function}, Springer-Verlag, New York, 1986. \url{https://doi.org/10.1007/978-1-4612-4872-9}.
+\bibitem{Mathias2001}
+A. R. D. Mathias, \emph{The Strength of Mac Lane Set Theory}, Annals of Pure and Applied Logic 110 (2001), 107--234. \url{https://doi.org/10.1016/S0168-0072(00)00031-2}.
+\bibitem{Shulman2019}
+M. Shulman, \emph{Comparing Material and Structural Set Theories}, Annals of Pure and Applied Logic 170 (2019), 465--504. \url{https://doi.org/10.1016/j.apal.2018.11.002}.
 \end{thebibliography}
 \end{document}
