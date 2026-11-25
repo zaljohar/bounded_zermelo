@@ -41,6 +41,7 @@ lean_lib NineAxiomBZProof where
     `FoundationFreeFiniteAssignmentFrame,
     `FoundationFreeFiniteEnvelope,
     `FoundationFreeFixedFrameCylindrification,
+    `FoundationFreeFlatTupleFilters,
     `FoundationFreeFrameAtomicTruth,
     `FoundationFreeFrameCoordinateImage,
     `FoundationFreeFrameDecoding,

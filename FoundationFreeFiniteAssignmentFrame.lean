@@ -1,16 +1,14 @@
 import FoundationFreeFrameInfrastructure
+import FoundationFreeFlatTupleFilters
+import FoundationFreeRussellFresh
 
 /-!
-# Foundation-free complete finite assignment frames
+# Foundation-free finite assignment frames with flat tuples
 
-This is a direct adaptation of the original verified frame induction, with
-Foundation replaced by the explicit finite-depth freshness guarantees of
-`FoundationFreePrefixProjection`.  In contrast with the old frame, there is
-no `supportSpec` asserting that the marker is a singleton; its only uses in
-the later semantic induction are represented graph typing and freshness.
-
-Draft pending Lean elaboration and kernel verification.  It does not prove
-full bounded separation on its own.
+For fixed local markers `m i`, the tuple for a valuation `a` has members
+exactly the tags `{a i, m i}`. Its set of codes is constructed by filtering
+the power set of the union of the tag sorts. Each coordinate projection
+is given by membership in the flat code.
 -/
 
 universe u
@@ -111,218 +109,249 @@ theorem empty_assignment_frame_exists_nf
     intro i
     exact i.elim0
 
-/-- Extend an already represented `n`-coordinate frame by a fresh coordinate
-at index zero, retaining every earlier represented projection graph.
-There is no finite-frame or truth-set existence premise. -/
-theorem extend_assignment_frame_exists_nf
-    (B : BackgroundNoFoundation V) (H : NineAxioms B.mem)
-    (E : V) (n : Nat) (D : Fin n → V)
-    (old : FiniteAssignmentFrameNF B E n D)
-    (X : V) (hXE : ∀ x : V, B.mem x X → B.mem x E) :
-    Nonempty (FiniteAssignmentFrameNF B E (n + 1) (Fin.cases X D)) := by
-  -- Put E, X, the old tuple sort, and all old tagged sorts in one support.
-  obtain ⟨W, hEW, hXW, hUW, hTW⟩ :=
-    finite_registry_exists_nf B H n 1 old.tagSort
-      (fun _ : Fin 1 => old.sort) E X
-  have hTInW : B.mem old.sort W := hTW 0
-  obtain ⟨m, F, N, Γ, Λ, hF, hN, hΓ, hΛ,
-    hTF, hNT, hNF, hFresh, hMarkerFresh,
-    hMarkerOutside, hMarkerDeep⟩ :=
-    fresh_two_projections_without_foundation B H
-      X old.sort W hXW hTInW
-  have hNU (i : Fin n) : DisjointSortNF B.mem N (old.tagSort i) :=
-    (hFresh (old.tagSort i) (hUW i)).2
-  have hFU (i : Fin n) : DisjointSortNF B.mem F (old.tagSort i) :=
-    (hFresh (old.tagSort i) (hUW i)).1
-  let pref : V → V → Prop := fun t s =>
-    ∃ f : V, B.mem f F ∧ IsUPair B.mem t s f
-  let last : V → V → Prop := fun t f =>
-    ∃ s : V, B.mem s old.sort ∧ IsUPair B.mem t s f
-  have hΓtyped : TypedEdges B.mem N old.sort pref Γ := by
-    intro p
-    constructor
-    · intro hp
-      obtain ⟨t, s, f, htN, hsT, hfF, htsf, hpts⟩ := (hΓ p).mp hp
-      exact ⟨t, s, htN, hsT, hpts, f, hfF, htsf⟩
-    · rintro ⟨t, s, htN, hsT, hpts, f, hfF, htsf⟩
-      exact (hΓ p).mpr ⟨t, s, f, htN, hsT, hfF, htsf, hpts⟩
-  have hΛtyped : TypedEdges B.mem N F last Λ := by
-    intro p
-    constructor
-    · intro hp
-      obtain ⟨t, s, f, htN, hsT, hfF, htsf, hptf⟩ := (hΛ p).mp hp
-      exact ⟨t, f, htN, hfF, hptf, s, hsT, htsf⟩
-    · rintro ⟨t, f, htN, hfF, hptf, s, hsT, htsf⟩
-      exact (hΛ p).mpr ⟨t, s, f, htN, hsT, hfF, htsf, hptf⟩
-  obtain ⟨Q, hQ⟩ :=
-    lift_finite_coordinate_projections_nf B H n old.sort N
-      old.tagSort Γ old.projectionGraph
-      pref old.projectionRel
-      hNT hNU old.tupleTagDisjoint hΓtyped old.projectionSpec
-  let tag' : Fin (n + 1) → V := Fin.cases F old.tagSort
-  let mark' : Fin (n + 1) → V := Fin.cases m old.marker
-  let support' : Fin (n + 1) → V := Fin.cases W old.support
-  let graph' : Fin (n + 1) → V := Fin.cases Λ Q
-  let relation' : Fin (n + 1) → V → V → Prop :=
-    Fin.cases last (fun i t u =>
-      ∃ s : V, B.mem s old.sort ∧ pref t s ∧
-        old.projectionRel i s u)
-  refine ⟨{
-    sort := N
-    tagSort := tag'
-    marker := mark'
-    support := support'
-    rawInSupport := ?_
-    rawDisjoint := ?_
-    projectionGraph := graph'
-    projectionRel := relation'
-    rawBound := ?_
-    tagSpec := ?_
-    markerFresh := ?_
-    markerOutsideDomain := ?_
-    markerDeep := ?_
-    tupleTagDisjoint := ?_
-    tagPairwiseDisjoint := ?_
-    projectionSpec := ?_
-    coordinateUnique := ?_
-    realizes := ?_
-  }⟩
-  · intro i
-    cases i using Fin.cases with
-    | zero => exact hXW
-    | succ j => exact old.rawInSupport j
-  · intro i
-    cases i using Fin.cases with
-    | zero =>
-        intro e f he hf hef
-        exact (hFresh E hEW).1 f e hf he hef.symm
-    | succ j => exact old.rawDisjoint j
-  · intro i x hx
-    cases i using Fin.cases with
-    | zero => exact hXE x hx
-    | succ j => exact old.rawBound j x hx
-  · intro i f
-    cases i using Fin.cases with
-    | zero => exact hF f
-    | succ j => exact old.tagSpec j f
-  · intro i x hx
-    cases i using Fin.cases with
-    | zero => exact hMarkerFresh E x hEW hx
-    | succ j => exact old.markerFresh j x hx
-  · intro i
-    cases i using Fin.cases with
-    | zero => exact hMarkerOutside X hXW
-    | succ j => exact old.markerOutsideDomain j
-  · intro i x y hx hy
-    cases i using Fin.cases with
-    | zero => exact hMarkerDeep X x y hXW hx hy
-    | succ j => exact old.markerDeep j x y hx hy
-  · intro i
-    cases i using Fin.cases with
-    | zero => exact hNF
-    | succ j => exact hNU j
+/-- Choose distinct local markers containing the empty object, all outside
+the depth-two envelope of E. A single fresh seed occurs inside every marker. -/
+private theorem flat_markers_exist
+    (B : BackgroundNoFoundation V) (H : NineAxioms B.mem) (E e : V) (n : Nat) :
+    ∃ m : Fin n → V, Function.Injective m ∧
+      ∀ i : Fin n, B.mem e (m i) ∧ ¬ ReachableWithin B.mem E 2 (m i) := by
+  obtain ⟨W, hW⟩ := finite_envelope_exists B H E 4
+  obtain ⟨r, _hr, hrOutside, _hrSelf⟩ := relative_russell_fresh_irreflexive B H W
+  let code (i : Fin n) := pureFiniteObjects B.mem H i.val
+  obtain ⟨a, ha⟩ := Classical.skolem.mp
+    (fun i : Fin n => unordered_pair_exists B.mem H (code i) r)
+  obtain ⟨m, hm⟩ := Classical.skolem.mp
+    (fun i : Fin n => unordered_pair_exists B.mem H (a i) e)
+  refine ⟨m, ?_, ?_⟩
   · intro i j hij
-    cases i using Fin.cases with
-    | zero =>
-        cases j using Fin.cases with
-        | zero => exact False.elim (hij rfl)
-        | succ k => exact hFU k
-    | succ k =>
-        cases j using Fin.cases with
-        | zero =>
-            intro u f hu hf huf
-            exact hFU k f u hf hu huf.symm
-        | succ l =>
-            apply old.tagPairwiseDisjoint k l
-            intro hkl
-            exact hij (congrArg Fin.succ hkl)
+    have hai : IsUPair B.mem (m i) (a i) e := hm i
+    have haj : IsUPair B.mem (m i) (a j) e := hij.symm ▸ hm j
+    have haEq := tagged_pair_payload_unique_nf B (m i) (a i) (a j) e hai haj
+    have hci : IsUPair B.mem (a i) (code i) r := ha i
+    have hcj : IsUPair B.mem (a i) (code j) r := haEq.symm ▸ ha j
+    have hcEq := tagged_pair_payload_unique_nf B (a i) (code i) (code j) r hci hcj
+    exact Fin.ext (pureFiniteObjects_injective B.mem H hcEq)
   · intro i
-    cases i using Fin.cases with
-    | zero => exact hΛtyped
-    | succ j => exact hQ j
-  · intro t htN i
-    obtain ⟨s, f, hsT, hfF, htsf⟩ := (hN t).mp htN
-    cases i using Fin.cases with
-    | zero =>
-        refine ⟨f, ⟨hfF, s, hsT, htsf⟩, ?_⟩
-        intro f' hf'
-        obtain ⟨hf'F, s', hs'T, hts'f'⟩ := hf'
-        have hsff' := disjoint_unordered_tuple_unique_nf B old.sort F
-          hTF t s f s' f' hsT hfF hs'T hf'F htsf hts'f'
-        exact hsff'.2.symm
-    | succ j =>
-        obtain ⟨u, hu, hUniq⟩ := old.coordinateUnique s hsT j
-        have hu' : B.mem u (old.tagSort j) ∧
-            (∃ s' : V, B.mem s' old.sort ∧ pref t s' ∧
-              old.projectionRel j s' u) := by
-          refine ⟨hu.1, s, hsT, ?_, hu.2⟩
-          exact ⟨f, hfF, htsf⟩
-        refine ⟨u, hu', ?_⟩
-        intro u' hu'
-        obtain ⟨hu'F, s', hs'T, hPref', hRel'⟩ := hu'
-        obtain ⟨f', hf'F, hts'f'⟩ := hPref'
-        have hss' := disjoint_unordered_tuple_unique_nf B old.sort F
-          hTF t s f s' f' hsT hfF hs'T hf'F htsf hts'f'
-        have hu'old : B.mem u' (old.tagSort j) ∧ old.projectionRel j s u' :=
-          ⟨hu'F, hss'.1.symm ▸ hRel'⟩
-        exact hUniq u' hu'old
-  · intro values hVals
-    let oldVals : Fin n → V := fun i => values i.succ
-    have hOldVals : ∀ i : Fin n, B.mem (oldVals i) (D i) := by
-      intro i
-      exact hVals i.succ
-    obtain ⟨s, hsT, hReal⟩ := old.realizes oldVals hOldVals
-    obtain ⟨f, hfm⟩ := unordered_pair_exists B.mem H (values 0) m
-    have hfF : B.mem f F :=
-      (hF f).mpr ⟨values 0, hVals 0, hfm⟩
-    obtain ⟨t, htsf⟩ := unordered_pair_exists B.mem H s f
-    have htN : B.mem t N :=
-      (hN t).mpr ⟨s, f, hsT, hfF, htsf⟩
-    refine ⟨t, htN, ?_⟩
-    intro i
-    cases i using Fin.cases with
-    | zero =>
-        exact ⟨f, hfF, hfm, s, hsT, htsf⟩
-    | succ j =>
-        obtain ⟨u, hu, htag, hCoord⟩ := hReal j
-        refine ⟨u, hu, htag, s, hsT, ?_, hCoord⟩
-        exact ⟨f, hfF, htsf⟩
+    refine ⟨(hm i e).mpr (Or.inr rfl), ?_⟩
+    intro hi
+    have haReach : ReachableWithin B.mem E 3 (a i) :=
+      Or.inr ⟨m i, hi, (hm i (a i)).mpr (Or.inl rfl)⟩
+    have hrReach : ReachableWithin B.mem E 4 r :=
+      Or.inr ⟨a i, haReach, (ha i r).mpr (Or.inr rfl)⟩
+    exact hrOutside ((hW r).mpr hrReach)
 
-/-- There is a represented finite frame for ANY prescribed external finite
-family of raw domains inside E; no separation schema is invoked. -/
+/-- A finite conjunction of tests on a common candidate set is represented
+by iterating binary intersection over the externally indexed coordinates. -/
+private theorem finite_coordinate_filters_exist
+    (B : BackgroundNoFoundation V) (H : NineAxioms B.mem) (C : V) :
+    ∀ (n : Nat) (P : Fin n → V → Prop),
+      (∀ i, HasMembers B.mem (fun t => B.mem t C ∧ P i t)) →
+      HasMembers B.mem (fun t => B.mem t C ∧ ∀ i, P i t) := by
+  intro n
+  induction n with
+  | zero =>
+      intro P _hP
+      exact ⟨C, fun _ => ⟨fun ht => ⟨ht, fun i => i.elim0⟩, And.left⟩⟩
+  | succ n ih =>
+      intro P hP
+      obtain ⟨F, hF⟩ := hP 0
+      obtain ⟨G, hG⟩ := ih (fun i => P i.succ) (fun i => hP i.succ)
+      obtain ⟨T, hT⟩ := H.intersection F G
+      refine ⟨T, ?_⟩
+      intro t
+      constructor
+      · intro ht
+        obtain ⟨htF, htG⟩ := (hT t).mp ht
+        obtain ⟨htC, hHead⟩ := (hF t).mp htF
+        refine ⟨htC, ?_⟩
+        intro i
+        cases i using Fin.cases with
+        | zero => exact hHead
+        | succ j => exact ((hG t).mp htG).2 j
+      · rintro ⟨htC, hAll⟩
+        exact (hT t).mpr ⟨(hF t).mpr ⟨htC, hAll 0⟩,
+          (hG t).mpr ⟨htC, fun i => hAll i.succ⟩⟩
+
+/-- A nonzero-arity frame whose codes are exactly the flat sets of one tag
+per coordinate. Projection to a tagged value is ordinary membership. -/
+theorem flat_assignment_frame_exists_nf
+    (B : BackgroundNoFoundation V) (H : NineAxioms B.mem) (E : V)
+    (n : Nat) (D : Fin (n + 1) → V)
+    (hDE : ∀ i : Fin (n + 1), ∀ x : V, B.mem x (D i) → B.mem x E) :
+    ∃ F : FiniteAssignmentFrameNF B E (n + 1) D,
+      (∀ t : V, B.mem t F.sort ↔
+        (∀ u : V, B.mem u t → ∃ i : Fin (n + 1), B.mem u (F.tagSort i)) ∧
+        ∀ i : Fin (n + 1), ∃! u : V, B.mem u (F.tagSort i) ∧ B.mem u t) ∧
+      ∀ (i : Fin (n + 1)) (t u : V), F.projectionRel i t u ↔ B.mem u t := by
+  classical
+  obtain ⟨e, he⟩ := H.empty
+  obtain ⟨m, hmInjective, hm⟩ := flat_markers_exist B H E e (n + 1)
+  have hOutside (i : Fin (n + 1)) : ¬ B.mem (m i) E :=
+    fun h => (hm i).2 (Or.inl (Or.inl h))
+  have hFresh (i : Fin (n + 1)) {x : V} (hx : B.mem x E) :
+      ¬ B.mem (m i) x :=
+    fun h => (hm i).2 (Or.inl (Or.inr ⟨x, hx, h⟩))
+  have hDeep (i : Fin (n + 1)) {x y : V} (hx : B.mem x E) (hy : B.mem y x) :
+      ¬ B.mem (m i) y :=
+    fun h => (hm i).2 (Or.inr ⟨y, Or.inr ⟨x, hx, hy⟩, h⟩)
+  have hOutsideD (i : Fin (n + 1)) : ¬ B.mem (m i) (D i) :=
+    fun h => hOutside i (hDE i _ h)
+  obtain ⟨U, hU⟩ := Classical.skolem.mp
+    (fun i : Fin (n + 1) => corrected_fan_no_foundation B H (D i) (m i) (hOutsideD i))
+  have hRaw (i : Fin (n + 1)) : DisjointSortNF B.mem E (U i) := by
+    intro x u hx hu hEq
+    subst x
+    obtain ⟨a, _ha, hp⟩ := (hU i u).mp hu
+    exact hFresh i hx ((hp (m i)).mpr (Or.inr rfl))
+  have hDisjoint (i j : Fin (n + 1)) (hij : i ≠ j) :
+      DisjointSortNF B.mem (U i) (U j) := by
+    intro u v hu hv hEq
+    subst v
+    obtain ⟨a, _ha, hp⟩ := (hU i u).mp hu
+    obtain ⟨b, hb, hq⟩ := (hU j u).mp hv
+    rcases (hq (m i)).mp ((hp (m i)).mpr (Or.inr rfl)) with h | h
+    · exact hOutside i (by simpa only [h] using hDE j b hb)
+    · exact hij (hmInjective h)
+  obtain ⟨R, hR⟩ := finite_family_range_exists_nf B H (n + 1) U
+  obtain ⟨A, hA⟩ := H.setUnion R
+  have hTags (u : V) : B.mem u A ↔ ∃ i : Fin (n + 1), B.mem u (U i) := by
+    constructor
+    · intro hu
+      obtain ⟨S, hS, hIn⟩ := (hA u).mp hu
+      obtain ⟨i, rfl⟩ := (hR S).mp hS
+      exact ⟨i, hIn⟩
+    · rintro ⟨i, hu⟩
+      exact (hA u).mpr ⟨U i, (hR (U i)).mpr ⟨i, rfl⟩, hu⟩
+  have hEmptyOutside : ¬ B.mem e A := by
+    intro h
+    obtain ⟨i, hi⟩ := (hTags e).mp h
+    obtain ⟨a, _ha, hp⟩ := (hU i e).mp hi
+    exact (he a).mp ((hp a).mpr (Or.inl rfl))
+  obtain ⟨Power, hPower⟩ := B.powerset A
+  obtain ⟨SingleEmpty, hSingleEmpty⟩ := H.singleton e
+  obtain ⟨C, hC⟩ := H.difference Power SingleEmpty
+  have hCandidate (t : V) :
+      B.mem t C ↔ (∀ u : V, B.mem u t → B.mem u A) ∧ t ≠ e := by
+    rw [hC t]
+    change (B.mem t Power ∧ ¬ B.mem t SingleEmpty) ↔ _
+    rw [hPower t, hSingleEmpty t]
+  have hNonempty {t : V} (ht : B.mem t C) : ∃ u : V, B.mem u t := by
+    by_contra h
+    apply ((hCandidate t).mp ht).2
+    apply B.extensionality
+    intro u
+    exact iff_of_false (fun hu => h ⟨u, hu⟩) (he u).mp
+  have hCandidateOutsideE {t : V} (ht : B.mem t C) : ¬ B.mem t E := by
+    intro htE
+    obtain ⟨u, hut⟩ := hNonempty ht
+    obtain ⟨i, hi⟩ := (hTags u).mp (((hCandidate t).mp ht).1 u hut)
+    obtain ⟨a, _ha, hp⟩ := (hU i u).mp hi
+    exact hDeep i htE hut ((hp (m i)).mpr (Or.inr rfl))
+  have hCandidateDisjoint (i : Fin (n + 1)) : DisjointSortNF B.mem C (U i) := by
+    intro t u ht hu hEq
+    subst u
+    obtain ⟨a, ha, hp⟩ := (hU i t).mp hu
+    have haA := ((hCandidate t).mp ht).1 a ((hp a).mpr (Or.inl rfl))
+    obtain ⟨j, hj⟩ := (hTags a).mp haA
+    exact hRaw j a a (hDE i a ha) hj rfl
+  have hReverse (i : Fin (n + 1)) (t u : V) (ht : B.mem t C) (hu : B.mem u (U i)) :
+      ¬ B.mem t u := by
+    intro htu
+    obtain ⟨a, ha, hp⟩ := (hU i u).mp hu
+    rcases (hp t).mp htu with h | h
+    · exact hCandidateOutsideE ht (by simpa only [h] using hDE i a ha)
+    · exact hEmptyOutside (((hCandidate t).mp ht).1 e (h.symm ▸ (hm i).1))
+  obtain ⟨T, hT⟩ := finite_coordinate_filters_exist B H C (n + 1)
+    (fun i t => ∃! u : V, B.mem u (U i) ∧ B.mem u t)
+    (fun i => exactly_one_tag_filter_exists_nf B H C (U i) (hCandidateDisjoint i) (hReverse i))
+  have hTflat (t : V) : B.mem t T ↔
+      (∀ u : V, B.mem u t → ∃ i : Fin (n + 1), B.mem u (U i)) ∧
+      ∀ i : Fin (n + 1), ∃! u : V, B.mem u (U i) ∧ B.mem u t := by
+    constructor
+    · intro ht
+      obtain ⟨htC, hEach⟩ := (hT t).mp ht
+      exact ⟨fun u hu => (hTags u).mp (((hCandidate t).mp htC).1 u hu), hEach⟩
+    · rintro ⟨hTagsIn, hEach⟩
+      obtain ⟨u, hu, _hUnique⟩ := hEach 0
+      refine (hT t).mpr ⟨(hCandidate t).mpr ⟨fun v hv => (hTags v).mpr (hTagsIn v hv), ?_⟩,
+        hEach⟩
+      intro h
+      exact (he u).mp (h ▸ hu.2)
+  obtain ⟨P, hP⟩ := Classical.skolem.mp
+    (fun i : Fin (n + 1) => tuple_membership_edges_exists_nf B H T (U i) (fun t u ht hu =>
+      hReverse i t u ((hT t).mp ht).1 hu))
+  obtain ⟨S, hS⟩ := finite_family_range_exists_nf B H (n + 1) D
+  refine ⟨{
+    sort := T
+    tagSort := U
+    marker := m
+    support := fun _ => S
+    rawInSupport := fun i => (hS (D i)).mpr ⟨i, rfl⟩
+    rawDisjoint := hRaw
+    projectionGraph := P
+    projectionRel := fun _ t u => B.mem u t
+    rawBound := hDE
+    tagSpec := hU
+    markerFresh := fun i _ hx => hFresh i hx
+    markerOutsideDomain := hOutsideD
+    markerDeep := fun i x _ hx hy => hDeep i (hDE i x hx) hy
+    tupleTagDisjoint := fun i t u ht hu => hCandidateDisjoint i t u ((hT t).mp ht).1 hu
+    tagPairwiseDisjoint := hDisjoint
+    projectionSpec := hP
+    coordinateUnique := fun t ht i => ((hT t).mp ht).2 i
+    realizes := ?_
+  }, hTflat, fun _ _ _ => Iff.rfl⟩
+  intro values hValues
+  obtain ⟨u, hu⟩ := Classical.skolem.mp
+    (fun i : Fin (n + 1) => unordered_pair_exists B.mem H (values i) (m i))
+  have hTag (i : Fin (n + 1)) : B.mem (u i) (U i) :=
+    (hU i (u i)).mpr ⟨values i, hValues i, hu i⟩
+  obtain ⟨t, ht⟩ := finite_family_range_exists_nf B H (n + 1) u
+  have hIn (i : Fin (n + 1)) : B.mem (u i) t := (ht (u i)).mpr ⟨i, rfl⟩
+  refine ⟨t, (hTflat t).mpr ⟨?_, ?_⟩, fun i => ⟨u i, hTag i, hu i, hIn i⟩⟩
+  · intro v hv
+    obtain ⟨j, rfl⟩ := (ht v).mp hv
+    exact ⟨j, hTag j⟩
+  · intro i
+    refine ⟨u i, ⟨hTag i, hIn i⟩, ?_⟩
+    rintro v ⟨hvU, hvt⟩
+    obtain ⟨j, rfl⟩ := (ht v).mp hvt
+    by_cases hij : j = i
+    · exact congrArg u hij
+    · exact False.elim (hDisjoint j i hij _ _ (hTag j) hvU rfl)
+
+/-- A represented finite frame for every externally indexed family of raw
+domains in E. The zero-coordinate frame consists of the empty tuple. -/
 theorem finite_assignment_frame_exists_nf
     (B : BackgroundNoFoundation V) (H : NineAxioms B.mem) (E : V) :
     ∀ (n : Nat) (D : Fin n → V),
       (∀ i : Fin n, ∀ x : V, B.mem x (D i) → B.mem x E) →
       Nonempty (FiniteAssignmentFrameNF B E n D) := by
   intro n
-  induction n with
+  cases n with
   | zero =>
-      intro D _
+      intro D _hDE
       have hD : D = (Fin.elim0 : Fin 0 → V) := by
         funext i
         exact i.elim0
       exact hD ▸ empty_assignment_frame_exists_nf B H E
-  | succ n ih =>
+  | succ n =>
       intro D hDE
-      let Dtail : Fin n → V := fun i => D i.succ
-      have hTail : ∀ (i : Fin n) (x : V),
-          B.mem x (Dtail i) → B.mem x E := by
-        intro i x hx
-        exact hDE i.succ x hx
-      obtain ⟨old⟩ := ih Dtail hTail
-      have hHead : ∀ x : V, B.mem x (D 0) → B.mem x E :=
-        hDE 0
-      obtain ⟨newFrame⟩ :=
-        extend_assignment_frame_exists_nf B H E n Dtail old (D 0) hHead
-      -- A family `D` and its `Fin.cases` reconstruction are definitionally
-      -- extensionally equal. Cast the resulting frame along that equality.
-      have hDomains : Fin.cases (D 0) Dtail = D := by
-        funext i
-        cases i using Fin.cases with
-        | zero => rfl
-        | succ j => rfl
-      exact ⟨hDomains ▸ newFrame⟩
+      obtain ⟨F, _hFlat, _hProjection⟩ := flat_assignment_frame_exists_nf B H E n D hDE
+      exact ⟨F⟩
 
+/-- A frame exists after adding a first coordinate to the domain family of
+a represented frame. The flat construction treats all domains together. -/
+theorem extend_assignment_frame_exists_nf
+    (B : BackgroundNoFoundation V) (H : NineAxioms B.mem)
+    (E : V) (n : Nat) (D : Fin n → V)
+    (old : FiniteAssignmentFrameNF B E n D)
+    (X : V) (hXE : ∀ x : V, B.mem x X → B.mem x E) :
+    Nonempty (FiniteAssignmentFrameNF B E (n + 1) (Fin.cases X D)) := by
+  apply finite_assignment_frame_exists_nf B H E
+  intro i
+  cases i using Fin.cases with
+  | zero => exact hXE
+  | succ j => exact old.rawBound j
 
 end NineAxiomBZ.NoFoundation

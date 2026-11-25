@@ -1,4 +1,4 @@
-import FoundationFreePrefixProjection
+import FoundationFreeFiniteEnvelope
 import TypedComposition
 
 /-!
@@ -7,7 +7,6 @@ import TypedComposition
 All new existence assertions below are derived from `NineAxioms`, not from
 Foundation, Separation, Replacement or an assumed finite-frame compiler.
 
-This is a proof draft pending Lean elaboration.
 -/
 
 universe u

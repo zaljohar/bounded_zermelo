@@ -23,6 +23,12 @@ bounded_separation_from_nine_no_foundation
 therefore derives every bounded-Separation instance without Foundation. The
 kernel audit reports only `[propext, Classical.choice, Quot.sound]`.
 
+The Foundation-free proof uses flat, Hausdorff-style assignment tuples.
+For markers `m_i` fixed across the frame, the code for an assignment `a`
+is `{{a_i, m_i} : i < N}`. A power-set construction supplies the codes
+and membership gives the coordinate projections. See
+`FOUNDATION_FREE_CANDIDATE_README.md` for the construction.
+
 The remainder of this README records the earlier Foundation-based endpoint,
 which remains available and kernel-checked.
 
@@ -85,7 +91,7 @@ No field of `NineAxioms` is used as a premise in this reverse proof.
 
 ## Kernel-verification status
 
-Both endpoints were verified together on 2026-11-13 with:
+Both endpoints and the flat frame construction are checked with:
 
 ```text
 Lean 4.20.0, commit 77cfc4d1a4f6, Release

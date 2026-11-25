@@ -17,6 +17,10 @@ structure BackgroundNoFoundation (V : Type u) where
 
 variable {V : Type u}
 
+/-- Disjoint coordinate sorts in the object membership relation. -/
+def DisjointSortNF (m : V → V → Prop) (U W : V) : Prop :=
+  ∀ u w : V, m u U → m w W → u ≠ w
+
 /-- The usual elementary existence axioms, without Separation or Foundation. -/
 structure BZMinusNoFoundation (B : BackgroundNoFoundation V) : Prop where
   empty : HasMembers B.mem (fun _ : V => False)

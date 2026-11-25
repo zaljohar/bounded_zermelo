@@ -22,10 +22,6 @@ universe u
 namespace NineAxiomBZ.NoFoundation
 variable {V : Type u}
 
-/-- Disjoint coordinate sorts, with no Foundation premise. -/
-def DisjointSortNF (m : V → V → Prop) (U W : V) : Prop :=
-  ∀ u w : V, m u U → m w W → u ≠ w
-
 /-- The separation invariants required for the next prefix/last-coordinate
 projection step. -/
 theorem fresh_three_sorts_without_foundation

@@ -2,8 +2,7 @@
 
 ## Result
 
-The corrected complete project passed its full build and both endpoint audits
-on 2026-11-13:
+The flat-tuple revision passed the full build and both endpoint audits:
 
 ```text
 Lean 4.20.0, x86_64-unknown-linux-gnu
@@ -58,7 +57,8 @@ In particular, the theorem parameters contain no Foundation, acyclicity,
 
 ## Axiom audit
 
-For every Foundation-free theorem above, `#print axioms` returned exactly:
+For the flat assignment-frame theorem and every Foundation-free theorem
+above, `#print axioms` returned exactly:
 
 ```text
 [propext, Classical.choice, Quot.sound]
@@ -71,9 +71,10 @@ assumption that the object-level membership structure satisfies Choice.
 The original Foundation-based theorems in `KernelAudit.lean` return the same
 three-item list.
 
-## Compilation repairs
+## Earlier compilation repairs
 
-The necessary repairs were proof-preserving implementation corrections:
+The corrections in the preceding version were proof-preserving
+implementation repairs:
 
 - register all flat sibling modules in `lakefile.lean`;
 - make the induction-hypothesis application in the external finite-object
