@@ -12,6 +12,28 @@ cp "$root"/*.lean "$work/"
 cp "$root/verification/Challenge.lean" "$work/FiveLockChallenge.lean"
 cp "$root/verification/comparator.json" "$work/comparator.json"
 cp "$root/lakefile.lean" "$work/lakefile.lean"
+# Lean 4.35 compatibility: explicit reductions in the temporary proof copy.
+python3 - "$work" <<'PYCOMPAT'
+from pathlib import Path
+import sys
+root = Path(sys.argv[1])
+def edit(name, replacements):
+    p = root / name
+    s = p.read_text()
+    for old, new, count in replacements:
+        assert s.count(old) == count, (name, old, s.count(old))
+        s = s.replace(old, new)
+    p.write_text(s)
+edit("DepthBound.lean", [
+    ("        simpa only [heq] using hx", "        change Reachable m seed (k + (ψ.boundDepth + 1)) x\n        rw [← heq]\n        exact hx", 1),
+    ("(by simpa [env] using hA x hxA)", "(by simpa [env, Reachable] using hA x hxA)", 1),
+    ("(fun j => by simpa [env] using hp j)", "(fun j => by simpa [env, Reachable] using hp j)", 1),
+])
+edit("FoundationFreeReverse.lean", [
+    ("    simpa [DeltaZero.holds] using (hs x)",
+     "    have hcase : Fin.cases x (![b] : Fin 1 → V) (1 : Fin 2) = b := by\n      change Fin.cases x (![b] : Fin 1 → V) (Fin.succ (0 : Fin 1)) = b\n      simp [Fin.cases_succ]\n    simpa [DeltaZero.holds, hcase] using (hs x)", 2),
+])
+PYCOMPAT
 # Keep the original checkout and toolchain unchanged.
 python3 - "$work/lakefile.lean" <<'PY'
 import pathlib,sys
