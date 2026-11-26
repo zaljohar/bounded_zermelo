@@ -1,0 +1,15 @@
+{
+  "challenge_module": "FiveLockChallenge",
+  "solution_module": "FoundationFreeEquivalenceCandidate",
+  "theorem_names": [
+    "NineAxiomBZ.NoFoundation.bounded_separation_from_nine_no_foundation",
+    "NineAxiomBZ.NoFoundation.nine_axioms_imply_bounded_zermelo_no_foundation",
+    "NineAxiomBZ.NoFoundation.bounded_zermelo_iff_nine_no_foundation",
+    "NineAxiomBZ.NoFoundation.bounded_zermelo_iff_bzminus_plus_nine_no_foundation"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ]
+}
