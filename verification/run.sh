@@ -33,6 +33,10 @@ edit("FoundationFreeReverse.lean", [
     ("    simpa [DeltaZero.holds] using (hs x)",
      "    have hcase : Fin.cases x (![b] : Fin 1 → V) (1 : Fin 2) = b := by\n      change Fin.cases x (![b] : Fin 1 → V) (Fin.succ (0 : Fin 1)) = b\n      first\n      | rfl\n      | rw [Fin.cases_succ] <;> rfl\n      | simp only [Fin.cases_succ] <;> rfl\n    simpa [DeltaZero.holds, hcase] using (hs x)", 2),
 ])
+edit("FoundationFreeEquivalenceCandidate.lean", [
+    ("(by simpa [ρ] using hA x hxA)", "(by simpa [ρ, Reachable] using hA x hxA)", 1),
+    ("(fun j => by simpa [ρ] using hp j)", "(fun j => by simpa [ρ, Reachable] using hp j)", 1),
+])
 PYCOMPAT
 # Keep the original checkout and toolchain unchanged.
 python3 - "$work/lakefile.lean" <<'PY'
