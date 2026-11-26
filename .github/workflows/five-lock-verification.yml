@@ -1,0 +1,49 @@
+name: Five-lock verification (Lean 4.35)
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  comparator:
+    name: Comparator + all five external checkers
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    env:
+      ELAN_HOME: /opt/bz-five-lock-elan
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install sandbox and elan
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bubblewrap zstd patch
+          sudo mkdir -p "$ELAN_HOME"
+          sudo chown "$(id -u):$(id -g)" "$ELAN_HOME"
+          curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$ELAN_HOME/bin" >> "$GITHUB_PATH"
+      - name: Verify all four endpoints (fail closed)
+        shell: bash
+        run: bash verification/run.sh
+      - name: Publish verification status
+        if: always()
+        shell: bash
+        run: |
+          if test -f verification-results/status.txt; then
+            cat verification-results/status.txt >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'NOT VERIFIED: setup did not finish' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: five-lock-verification-evidence
+          path: verification-results/
+          if-no-files-found: warn
