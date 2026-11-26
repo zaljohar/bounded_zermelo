@@ -1,0 +1,105 @@
+--- a/BoundedSeparationFinalDraft.lean
++++ b/BoundedSeparationFinalDraft.lean
+@@ -42,8 +42,8 @@
+       Reachable B.mem seed 0 (ρ i) := by
+     exact @Fin.cases n
+       (fun i => Reachable B.mem seed 0 (ρ i))
+-      (by simpa [ρ] using hA x hxA)
+-      (fun j => by simpa [ρ] using hp j)
++      (by simpa [ρ, Reachable] using hA x hxA)
++      (fun j => by simpa [ρ, Reachable] using hp j)
+   have hBound : ∀ z,
+       Reachable B.mem seed (0 + φ.boundDepth) z → B.mem z E := by
+     intro z hz
+--- a/BoundedZermeloReverse.lean
++++ b/BoundedZermeloReverse.lean
+@@ -222,13 +222,15 @@
+       (.neg (.member 0 1)) a (![b] : Fin 1 → V)
+     refine ⟨s, ?_⟩
+     intro x
+-    simpa [DeltaZero.holds] using (hs x)
++    have hcoord : Fin.cases x (![b] : Fin 1 → V) 1 = b := rfl
++    simpa [DeltaZero.holds, hcoord] using (hs x)
+   · intro a b
+     obtain ⟨s, hs⟩ := h.separation 1
+       (.member 0 1) a (![b] : Fin 1 → V)
+     refine ⟨s, ?_⟩
+     intro x
+-    simpa [DeltaZero.holds] using (hs x)
++    have hcoord : Fin.cases x (![b] : Fin 1 → V) 1 = b := rfl
++    simpa [DeltaZero.holds, hcoord] using (hs x)
+   · intro q r
+     -- Every endpoint of an edge in q or r belongs to the union of those
+     -- relations. The candidate unordered output pairs therefore lie in P(D).
+--- a/DepthBound.lean
++++ b/DepthBound.lean
+@@ -129,7 +129,7 @@
+         apply hE x
+         have heq : (k + 1) + ψ.boundDepth = k + (ψ.boundDepth + 1) := by
+           omega
+-        simpa only [heq] using hx
++        simpa only [heq, DeltaZero.boundDepth] using hx
+       let ρy (y : V) : Fin (n + 1) → V :=
+         @Fin.cases n (fun _ => V) y ρ
+       have hEnv (y : V) (hy : m y (ρ i)) :
+@@ -219,8 +219,8 @@
+       Reachable B.mem seed 0 (env i) := by
+     exact @Fin.cases n
+       (fun i => Reachable B.mem seed 0 (env i))
+-      (by simpa [env] using hA x hxA)
+-      (fun j => by simpa [env] using hp j)
++      (by simpa [env, Reachable] using hA x hxA)
++      (fun j => by simpa [env, Reachable] using hp j)
+   have hBound : ∀ v,
+       Reachable B.mem seed (0 + φ.boundDepth) v → B.mem v E := by
+     intro v hv
+--- a/FoundationFreeEquivalenceCandidate.lean
++++ b/FoundationFreeEquivalenceCandidate.lean
+@@ -44,8 +44,8 @@
+       Reachable B.mem seed 0 (ρ i) := by
+     exact @Fin.cases n
+       (fun i => Reachable B.mem seed 0 (ρ i))
+-      (by simpa [ρ] using hA x hxA)
+-      (fun j => by simpa [ρ] using hp j)
++      (by simpa [ρ, Reachable] using hA x hxA)
++      (fun j => by simpa [ρ, Reachable] using hp j)
+   have hBound : ∀ z,
+       Reachable B.mem seed (0 + φ.boundDepth) z → B.mem z E := by
+     intro z hz
+--- a/FoundationFreeReverse.lean
++++ b/FoundationFreeReverse.lean
+@@ -217,13 +217,15 @@
+       (.neg (.member 0 1)) a (![b] : Fin 1 → V)
+     refine ⟨s, ?_⟩
+     intro x
+-    simpa [DeltaZero.holds] using (hs x)
++    have hcoord : Fin.cases x (![b] : Fin 1 → V) 1 = b := rfl
++    simpa [DeltaZero.holds, hcoord] using (hs x)
+   · intro a b
+     obtain ⟨s, hs⟩ := h.separation 1
+       (.member 0 1) a (![b] : Fin 1 → V)
+     refine ⟨s, ?_⟩
+     intro x
+-    simpa [DeltaZero.holds] using (hs x)
++    have hcoord : Fin.cases x (![b] : Fin 1 → V) 1 = b := rfl
++    simpa [DeltaZero.holds, hcoord] using (hs x)
+   · intro q r
+     -- Every endpoint of an edge in q or r belongs to the union of those
+     -- relations. The candidate unordered output pairs therefore lie in P(D).
+--- a/lakefile.lean
++++ b/lakefile.lean
+@@ -4,7 +4,7 @@
+ package nine_axiom_bz where
+ 
+ require mathlib from git
+-  "https://github.com/leanprover-community/mathlib4" @ "v4.20.0"
++  "https://github.com/leanprover-community/mathlib4" @ "v4.35.0"
+ 
+ @[default_target]
+ lean_lib NineAxiomBZProof where
+@@ -85,3 +85,5 @@
+     `TypedRelationalImage,
+     `UniformBoundedTruth
+   ]
++
++lean_lib FiveLockChallenge
